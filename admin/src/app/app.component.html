@@ -1,1 +1,16 @@
-<h1>Admin</h1>
+<mat-toolbar navbar>
+  <mat-toolbar-row>
+    <span>Admin</span>
+    <button mat-icon-button (click)="changeTheme()" title="Switch Theme">
+      <mat-icon outlined>{{
+        themes.indexOf(themeMode) === 0 ? themes[1] : themes[0]
+      }}</mat-icon>
+    </button>
+  </mat-toolbar-row>
+</mat-toolbar>
+
+<mat-sidenav-container>
+  <mat-sidenav-content>
+    <h1>Admin</h1>
+  </mat-sidenav-content>
+</mat-sidenav-container>

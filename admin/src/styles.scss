@@ -1,3 +1,32 @@
+@use '@angular/material' as mat;
+@include mat.core();
+
+$palette: mat.define-palette(mat.$light-blue-palette);
+
+$light-theme: mat.define-light-theme(
+  (
+    color: (
+      primary: $palette,
+      accent: $palette
+    )
+  )
+);
+
+$dark-theme: mat.define-dark-theme(
+  (
+    color: (
+      primary: $palette,
+      accent: $palette
+    )
+  )
+);
+
+@include mat.all-component-themes($dark-theme);
+
+.light_mode {
+  @include mat.all-component-colors($light-theme);
+}
+
 * {
   margin: 0;
   padding: 0;

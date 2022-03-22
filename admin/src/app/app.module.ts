@@ -12,6 +12,10 @@ import {
   provideFirestore,
   getFirestore
 } from '@angular/fire/firestore';
+import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from '@angular/material/icon';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -23,6 +27,10 @@ import { AppComponent } from './app.component';
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSidenavModule,
+    MatToolbarModule,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     ...(environment.production ? [provideAnalytics(() => getAnalytics())] : []),
     provideAuth(() => {

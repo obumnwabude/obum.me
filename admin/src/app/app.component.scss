@@ -1,0 +1,25 @@
+mat-toolbar[navbar] {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  box-shadow: 0 3px 1.5px -1.5px #0d102517;
+
+  mat-toolbar-row {
+    justify-content: space-between;
+    max-width: 512px;
+    margin: 0 auto;
+  }
+}
+
+mat-sidenav-container,
+mat-sidenav-content {
+  height: 100%;
+}
+
+mat-sidenav-content {
+  padding: 96px 32px;
+  max-width: 512px;
+  margin: 0 auto;
+}
