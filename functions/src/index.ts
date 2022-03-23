@@ -1,8 +1,29 @@
+import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import * as path from 'path';
+admin.initializeApp();
 
-export const app = functions.https.onRequest((req, res) => {
-  console.log(req.path);
-  if (req.path === '/home') res.redirect('https://obumnwabude.com');
-  else res.status(404).sendFile(path.join(__dirname, '../404.html'));
+export const app = functions.https.onRequest(async (req, res) => {
+  await admin
+    .firestore()
+    .collection('requests')
+    .add({
+      headers: req.headers,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      url: req.url
+    })
+    .catch((e) => console.error(e));
+
+  const snap = await admin
+    .firestore()
+    .collection('links')
+    .where('short', '==', req.path.split('/')[1])
+    .get()
+    .catch((e) => console.error(e));
+  
+  if (!snap || snap.size === 0) {
+    res.status(404).sendFile(path.join(__dirname, '../404.html'));
+  } else {
+    res.redirect(snap.docs[0].data().long);
+  }
 });
