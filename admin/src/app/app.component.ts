@@ -33,4 +33,6 @@ export class AppComponent implements OnInit {
     this.theming.theme.next(this.themeMode);
     localStorage.setItem(constants.LS_THEME_KEY, this.themeMode);
   }
+
+  newLink(): void {}
 }

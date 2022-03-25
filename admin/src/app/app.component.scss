@@ -8,7 +8,7 @@ mat-toolbar[navbar] {
 
   mat-toolbar-row {
     justify-content: space-between;
-    max-width: 512px;
+    max-width: 992px;
     margin: 0 auto;
   }
 }
@@ -20,6 +20,23 @@ mat-sidenav-content {
 
 mat-sidenav-content {
   padding: 96px 32px;
-  max-width: 512px;
+  max-width: 992px;
   margin: 0 auto;
+}
+
+button[mat-fab] {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+
+  mat-icon {
+    font-size: 48px;
+    margin-top: -24px;
+    margin-left: -24px;
+  }
+
+  @media (min-width: 1232px) {
+    bottom: 48px;
+    right: calc(((100vw - 1232px) / 2) + 32px);
+  }
 }
