@@ -26,6 +26,19 @@ $dark-theme: mat.define-dark-theme(
 
 .light_mode {
   @include mat.all-component-colors($light-theme);
+
+  .snackbar-success,
+  .snackbar-error {
+    color: white;
+  }
+
+  .snackbar-success::before {
+    color: #9ce2b6;
+  }
+
+  .snackbar-error::before {
+    color: #fc9494;
+  }
 }
 
 * {
@@ -42,4 +55,35 @@ body {
 body {
   font-family: Roboto, 'Helvetica Neue', sans-serif;
   font-size: 16px;
+}
+
+[bold] {
+  font-weight: bold;
+}
+
+snack-bar-container.mat-snack-bar-container {
+  display: flex;
+  align-items: center;
+}
+
+.snackbar-success::before {
+  font-family: 'Material Icons';
+  content: '\f013';
+  color: #4caf50;
+  margin-right: 8px;
+}
+
+.snackbar-error::before {
+  font-family: 'Material Icons';
+  content: '\e000';
+  color: #f44336;
+  margin-right: 8px;
+}
+
+.mat-bottom-sheet-container {
+  border-radius: 32px 32px 0 0;
+}
+
+mat-form-field[short] .mat-form-field-infix {
+  display: flex;
 }

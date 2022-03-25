@@ -1,0 +1,44 @@
+<div container>
+  <div header>
+    <h2>New Link</h2>
+    <button mat-mini-fab (click)="bsRef.dismiss()">
+      <mat-icon class>close</mat-icon>
+    </button>
+  </div>
+
+  <form [formGroup]="link" (ngSubmit)="saveLink()">
+    <mat-form-field [floatLabel]="'always'" short>
+      <mat-label>Shortened</mat-label>
+      <span bold>obum.me/</span>
+      <input
+        [autofocus]="true"
+        matInput
+        [formControl]="short"
+        type="text"
+        required
+      />
+      <mat-error *ngIf="short.invalid">{{
+        long.hasError('pattern')
+          ? 'Only alphanumeric characters'
+          : 'Shortened is required.'
+      }}</mat-error>
+    </mat-form-field>
+
+    <mat-form-field [floatLabel]="'always'" long>
+      <mat-label>Full URL</mat-label>
+      <input matInput [formControl]="long" type="text" required />
+      <mat-error *ngIf="long.invalid">{{
+        long.hasError('pattern')
+          ? 'Start with https://'
+          : 'Full URL is required.'
+      }}</mat-error>
+    </mat-form-field>
+
+    <div submit-button-container>
+      <button mat-raised-button color="accent">
+        <mat-icon>check</mat-icon>
+        <span>Create</span>
+      </button>
+    </div>
+  </form>
+</div>

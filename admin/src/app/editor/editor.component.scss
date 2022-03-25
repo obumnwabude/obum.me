@@ -1,0 +1,39 @@
+[container] {
+  padding: 32px 16px;
+}
+
+[header] {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+[header] h2 {
+  font-weight: normal;
+  font-size: 1.5rem;
+}
+
+[header] button[mat-mini-fab] {
+  transform: scale(0.8);
+}
+
+mat-form-field {
+  margin-bottom: 1.5rem;
+}
+
+mat-form-field[long] {
+  width: 100%;
+}
+
+div[submit-button-container] {
+  text-align: right;
+}
+
+div[submit-button-container] button[mat-raised-button] {
+  font-size: 1.125rem;
+
+  mat-icon {
+    margin-right: 0.5rem;
+  }
+}

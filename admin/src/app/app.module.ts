@@ -12,24 +12,37 @@ import {
   provideFirestore,
   getFirestore
 } from '@angular/fire/firestore';
-import { MatButtonModule } from "@angular/material/button";
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import {
+  MatSnackBarModule,
+  MAT_SNACK_BAR_DEFAULT_OPTIONS
+} from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
+import { EditorComponent } from './editor/editor.component';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, EditorComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    MatBottomSheetModule,
     MatButtonModule,
+    MatFormFieldModule,
     MatIconModule,
+    MatInputModule,
     MatSidenavModule,
+    MatSnackBarModule,
     MatToolbarModule,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     ...(environment.production ? [provideAnalytics(() => getAnalytics())] : []),
@@ -44,9 +57,17 @@ import { AppComponent } from './app.component';
         connectFirestoreEmulator(firestore, 'localhost', 8080);
       }
       return firestore;
-    })
+    }),
+    ReactiveFormsModule
   ],
-  providers: [ScreenTrackingService, UserTrackingService],
+  providers: [
+    ScreenTrackingService,
+    UserTrackingService,
+    {
+      provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
+      useValue: { duration: 5000, verticalPosition: 'top' }
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

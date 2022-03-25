@@ -1,6 +1,9 @@
 import { Component, HostBinding, OnInit } from '@angular/core';
 import { OverlayContainer } from '@angular/cdk/overlay';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+
 import { constants } from './constants';
+import { EditorComponent } from './editor/editor.component';
 import { ThemingService } from './theming.service';
 
 @Component({
@@ -12,6 +15,7 @@ export class AppComponent implements OnInit {
   themes = constants.THEMES;
   @HostBinding('class') public themeMode = constants.DEFAULT_THEME;
   constructor(
+    private bs: MatBottomSheet,
     private overlay: OverlayContainer,
     public theming: ThemingService
   ) {}
@@ -34,5 +38,7 @@ export class AppComponent implements OnInit {
     localStorage.setItem(constants.LS_THEME_KEY, this.themeMode);
   }
 
-  newLink(): void {}
+  newLink(): void {
+    this.bs.open(EditorComponent);
+  }
 }
