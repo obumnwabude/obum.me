@@ -18,6 +18,12 @@ export const app = functions.https.onRequest(async (req, res) => {
     })
     .catch((e) => console.error(e));
 
+  await admin
+    .firestore()
+    .doc('/counters/requests')
+    .set({ count: admin.firestore.FieldValue.increment(1) }, { merge: true })
+    .catch((e) => console.error(e));
+
   const snap = await admin
     .firestore()
     .collection('links')
