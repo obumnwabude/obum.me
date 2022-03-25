@@ -4,10 +4,6 @@ import * as path from 'path';
 admin.initializeApp();
 
 export const app = functions.https.onRequest(async (req, res) => {
-  if (['/404.css', '/favicon.ico', '/obum.jpg'].includes(req.path)) {
-    return res.sendFile(path.join(__dirname, `../404/assets${req.path}`));
-  }
-
   await admin
     .firestore()
     .collection('requests')
@@ -32,7 +28,7 @@ export const app = functions.https.onRequest(async (req, res) => {
     .catch((e) => console.error(e));
 
   if (!snap || snap.size === 0) {
-    res.status(404).sendFile(path.join(__dirname, '../404/404.html'));
+    res.status(404).sendFile(path.join(__dirname, '404.html'));
   } else {
     res.redirect(snap.docs[0].data().long);
   }
