@@ -19,6 +19,8 @@ export const app = functions.https.onRequest(async (req, res) => {
     .doc('/counters/requests')
     .set({ count: admin.firestore.FieldValue.increment(1) }, { merge: true })
     .catch((e) => console.error(e));
+  
+  if (req.path === '/') return res.redirect('https://obumnwabude.com');
 
   const snap = await admin
     .firestore()
