@@ -6,11 +6,12 @@ import {
   MatBottomSheetRef
 } from '@angular/material/bottom-sheet';
 import { MatSidenav } from '@angular/material/sidenav';
+import { SPINNER } from 'ngx-ui-loader';
+import { firstValueFrom } from 'rxjs';
 
 import { constants } from './constants';
 import { EditorComponent } from './editor/editor.component';
 import { ThemingService } from './theming.service';
-import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'obum-root',
@@ -20,6 +21,9 @@ import { firstValueFrom } from 'rxjs';
 export class AppComponent implements OnInit {
   bsRef!: MatBottomSheetRef<EditorComponent>;
   isLargeScreen = false;
+  // the 500 level of mat light blue palette
+  primaryColor = '#03A9F4';
+  SPINNER = SPINNER;
   themes = constants.THEMES;
   @ViewChild('snav') snav!: MatSidenav;
   @HostBinding('class') public themeMode = constants.DEFAULT_THEME;

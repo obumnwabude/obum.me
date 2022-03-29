@@ -26,6 +26,7 @@ import {
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgxUiLoaderModule } from 'ngx-ui-loader';
 
 import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
@@ -44,11 +45,14 @@ import { EditorComponent } from './editor/editor.component';
     MatSidenavModule,
     MatSnackBarModule,
     MatToolbarModule,
+    NgxUiLoaderModule,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     ...(environment.production ? [provideAnalytics(() => getAnalytics())] : []),
     provideAuth(() => {
       const auth = getAuth();
-      if (!environment.production) connectAuthEmulator(auth, 'localhost:9099');
+      if (!environment.production) {
+        connectAuthEmulator(auth, 'http://localhost:9099');
+      }
       return auth;
     }),
     provideFirestore(() => {
@@ -65,7 +69,11 @@ import { EditorComponent } from './editor/editor.component';
     UserTrackingService,
     {
       provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
-      useValue: { duration: 5000, verticalPosition: 'top' }
+      useValue: {
+        duration: 5000,
+        horizontalPosition: 'right',
+        verticalPosition: 'top'
+      }
     }
   ],
   bootstrap: [AppComponent]
