@@ -1,29 +1,34 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
+import { constants } from '../constants';
+
+const { LS_SHORT_KEY, LS_LONG_KEY } = constants;
+
 @Component({
+  selector: 'obum-editor',
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.scss']
 })
 export class EditorComponent {
-  short = new FormControl('', [
+  short = new FormControl(localStorage.getItem(LS_SHORT_KEY) ?? '', [
     Validators.pattern(/^(\w|\-)*$/),
     Validators.required
   ]);
-  long = new FormControl('', [
+  long = new FormControl(localStorage.getItem(LS_LONG_KEY) ?? '', [
     Validators.pattern(/^https:\/\//),
     Validators.required
   ]);
   link = new FormGroup({ short: this.short, long: this.long });
+  ls = localStorage;
+  LS_SHORT_KEY = LS_SHORT_KEY;
+  LS_LONG_KEY = LS_LONG_KEY;
+  @Output() cancel = new EventEmitter<boolean>();
 
-  constructor(
-    public bsRef: MatBottomSheetRef<EditorComponent>,
-    private snackBar: MatSnackBar
-  ) {}
+  constructor(private snackBar: MatSnackBar) {}
 
-  saveLink(): void {
+  saveLink(e: any): void {
     if (this.link.invalid) {
       this.snackBar.open('Please resolve all errors', '', {
         panelClass: ['snackbar-error']
@@ -33,7 +38,11 @@ export class EditorComponent {
       this.snackBar.open('Link successfully saved', '', {
         panelClass: ['snackbar-success']
       });
-      this.bsRef.dismiss();
+      localStorage.removeItem(LS_SHORT_KEY);
+      localStorage.removeItem(LS_LONG_KEY);
+      e.currentTarget.reset();
+      this.link.reset();
+      this.cancel.emit();
     }
   }
 }

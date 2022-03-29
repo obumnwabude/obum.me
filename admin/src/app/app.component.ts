@@ -1,10 +1,16 @@
-import { Component, HostBinding, OnInit } from '@angular/core';
+import { Component, HostBinding, OnInit, ViewChild } from '@angular/core';
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { OverlayContainer } from '@angular/cdk/overlay';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import {
+  MatBottomSheet,
+  MatBottomSheetRef
+} from '@angular/material/bottom-sheet';
+import { MatSidenav } from '@angular/material/sidenav';
 
 import { constants } from './constants';
 import { EditorComponent } from './editor/editor.component';
 import { ThemingService } from './theming.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'obum-root',
@@ -12,15 +18,29 @@ import { ThemingService } from './theming.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
+  bsRef!: MatBottomSheetRef<EditorComponent>;
+  isLargeScreen = false;
   themes = constants.THEMES;
+  @ViewChild('snav') snav!: MatSidenav;
   @HostBinding('class') public themeMode = constants.DEFAULT_THEME;
   constructor(
+    private breakpoint: BreakpointObserver,
     private bs: MatBottomSheet,
     private overlay: OverlayContainer,
     public theming: ThemingService
   ) {}
 
   ngOnInit(): void {
+    this.breakpoint.observe('(min-width: 768px)').subscribe((b) => {
+      if (b.matches) {
+        this.isLargeScreen = true;
+        this.bsRef?.dismiss();
+      } else {
+        this.isLargeScreen = false;
+        this.snav?.close();
+      }
+    });
+
     this.theming.theme.subscribe((theme: string) => {
       this.themeMode = theme;
       const oCClasses = this.overlay.getContainerElement().classList;
@@ -39,6 +59,16 @@ export class AppComponent implements OnInit {
   }
 
   newLink(): void {
-    this.bs.open(EditorComponent);
+    if (this.isLargeScreen) {
+      this.snav.open();
+    } else {
+      this.bsRef = this.bs.open(EditorComponent);
+      const closeSub = this.bsRef.instance.cancel.subscribe((_) =>
+        this.bsRef.dismiss()
+      );
+      firstValueFrom(this.bsRef.afterDismissed()).then(() =>
+        closeSub.unsubscribe()
+      );
+    }
   }
 }

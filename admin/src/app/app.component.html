@@ -10,6 +10,15 @@
 </mat-toolbar>
 
 <mat-sidenav-container>
+   <mat-sidenav
+    #snav
+    [fixedInViewport]="true"
+    [fixedTopGap]="64"
+    [mode]="'over'"
+    [position]="'end'"
+  >
+    <obum-editor (cancel)="snav.close()"></obum-editor>
+  </mat-sidenav>
   <mat-sidenav-content>
     <h1>Admin</h1>
 
