@@ -19,7 +19,7 @@ export const app = functions.https.onRequest(async (req, res) => {
     .doc('/counters/requests')
     .set({ count: admin.firestore.FieldValue.increment(1) }, { merge: true })
     .catch((e) => console.error(e));
-  
+
   if (req.path === '/') return res.redirect('https://obumnwabude.com');
 
   const snap = await admin
@@ -35,3 +35,13 @@ export const app = functions.https.onRequest(async (req, res) => {
     res.redirect(snap.docs[0].data().long);
   }
 });
+
+export const incrementLinkCount = functions.firestore
+  .document('/links/{linkId}')
+  .onCreate(async () => {
+    await admin
+      .firestore()
+      .doc('/counters/links')
+      .set({ count: admin.firestore.FieldValue.increment(1) }, { merge: true })
+      .catch((e) => console.error(e));
+  });
