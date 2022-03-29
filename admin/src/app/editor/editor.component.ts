@@ -1,5 +1,10 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { addDoc, collection, Firestore } from '@angular/fire/firestore';
+import {
+  addDoc,
+  collection,
+  Firestore,
+  serverTimestamp
+} from '@angular/fire/firestore';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
@@ -42,7 +47,10 @@ export class EditorComponent {
     } else {
       try {
         this.ngxLoader.start();
-        await addDoc(collection(this.firestore, 'links'), this.link.value);
+        await addDoc(collection(this.firestore, 'links'), {
+          createdAt: serverTimestamp(),
+          ...this.link.value
+        });
         this.snackBar.open('Link successfully saved', '', {
           panelClass: ['snackbar-success']
         });
