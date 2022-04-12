@@ -22,4 +22,4 @@ However, access to editing the links is only via the admin account set with [Fir
 ### Backend
 This URL shortener is entirely built on [Firebase](https://firebase.google.com):
 * The short and long links are stored in [Firestore](https://firebase.google.com/products/firestore) database.
-* [Cloud Functions] do the actual checking of shortened URLs and redirect as necessary.
+* [Cloud Functions](https://firebase.google.com/products/functions) do the actual checking of shortened URLs and redirect as necessary.
