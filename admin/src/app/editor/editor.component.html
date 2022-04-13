@@ -19,7 +19,7 @@
         (input)="ls.setItem(LS_SHORT_KEY, short.value)"
       />
       <mat-error *ngIf="short.invalid">{{
-        long.hasError('pattern')
+        short.hasError('pattern')
           ? 'Only alphanumeric characters'
           : 'Shortened is required.'
       }}</mat-error>
