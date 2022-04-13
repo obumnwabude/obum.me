@@ -17,17 +17,17 @@
 </mat-toolbar>
 
 <mat-sidenav-container>
-   <mat-sidenav
+  <mat-sidenav
     #snav
     [fixedInViewport]="true"
     [fixedTopGap]="64"
     [mode]="'over'"
     [position]="'end'"
   >
-    <obum-editor (cancel)="snav.close()"></obum-editor>
+    <obum-editor (cancel)="snav.close()" *ngIf="snav.opened"></obum-editor>
   </mat-sidenav>
   <mat-sidenav-content>
-    <h1>Admin</h1>
+    <obum-links-table></obum-links-table>
 
     <button mat-fab (click)="newLink()">
       <mat-icon>add</mat-icon>

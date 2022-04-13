@@ -2,10 +2,10 @@ import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import * as path from 'path';
 admin.initializeApp();
+const db = admin.firestore();
 
 export const app = functions.https.onRequest(async (req, res) => {
-  await admin
-    .firestore()
+  await db
     .collection('requests')
     .add({
       headers: req.headers,
@@ -14,16 +14,14 @@ export const app = functions.https.onRequest(async (req, res) => {
     })
     .catch((e) => console.error(e));
 
-  await admin
-    .firestore()
+  await db
     .doc('/counters/requests')
     .set({ count: admin.firestore.FieldValue.increment(1) }, { merge: true })
     .catch((e) => console.error(e));
 
   if (req.path === '/') return res.redirect('https://obumnwabude.com');
 
-  const snap = await admin
-    .firestore()
+  const snap = await db
     .collection('links')
     .where('short', '==', req.path.split('/')[1])
     .get()
@@ -36,12 +34,16 @@ export const app = functions.https.onRequest(async (req, res) => {
   }
 });
 
-export const incrementLinkCount = functions.firestore
+export const onCreateLink = functions.firestore
   .document('/links/{linkId}')
-  .onCreate(async () => {
-    await admin
-      .firestore()
+  .onCreate(async (_, context) => {
+    await db
       .doc('/counters/links')
       .set({ count: admin.firestore.FieldValue.increment(1) }, { merge: true })
       .catch((e) => console.error(e));
+
+    await db
+      .doc(`/links/${context.params['linkId']}`)
+      .set({ id: context.params['linkId'] }, { merge: true })
+      .catch((error) => console.error(error));
   });

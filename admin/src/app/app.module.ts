@@ -18,12 +18,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import {
   MatSnackBarModule,
   MAT_SNACK_BAR_DEFAULT_OPTIONS
 } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxUiLoaderModule } from 'ngx-ui-loader';
@@ -31,9 +34,10 @@ import { NgxUiLoaderModule } from 'ngx-ui-loader';
 import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
 import { EditorComponent } from './editor/editor.component';
+import { LinksTableComponent } from './links-table/links-table.component';
 
 @NgModule({
-  declarations: [AppComponent, EditorComponent],
+  declarations: [AppComponent, EditorComponent, LinksTableComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -42,9 +46,12 @@ import { EditorComponent } from './editor/editor.component';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatProgressSpinnerModule,
     MatSidenavModule,
     MatSnackBarModule,
+    MatTableModule,
     MatToolbarModule,
+    MatTooltipModule,
     NgxUiLoaderModule,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     ...(environment.production ? [provideAnalytics(() => getAnalytics())] : []),

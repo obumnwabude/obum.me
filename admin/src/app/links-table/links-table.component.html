@@ -1,0 +1,43 @@
+<div loader *ngIf="isFetchingLinks && links.length === 0">
+  <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+</div>
+<div table-container *ngIf="!isFetchingLinks && links.length > 0">
+  <table mat-table [dataSource]="links" class="mat-elevation-z1">
+    <ng-container matColumnDef="edit">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let link">
+        <button
+          mat-icon-button
+          (click)="this.edit.emit(link)"
+          color="primary"
+          [matTooltip]="'Edit Link'"
+        >
+          <mat-icon [ngStyle]="{ color: '#03a9f4' }"
+            >drive_file_rename_outlined</mat-icon
+          >
+        </button>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="short" sticky>
+      <th mat-header-cell *matHeaderCellDef bold>Short</th>
+      <td mat-cell *matCellDef="let link">
+        obum.me/<span bold>{{ link.short }}</span>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="long">
+      <th mat-header-cell *matHeaderCellDef bold>Long</th>
+      <td mat-cell *matCellDef="let link">
+        {{ link.long }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="createdAt">
+      <th mat-header-cell *matHeaderCellDef bold>Created At</th>
+      <td mat-cell *matCellDef="let link">
+        {{ link.createdAt | date: 'dd/MM/YYYY, HH:mm' }}
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: columns"></tr>
+  </table>
+</div>

@@ -39,6 +39,11 @@ $dark-theme: mat.define-dark-theme(
   .snackbar-error::before {
     color: #fc9494;
   }
+
+  td.mat-cell,
+  th.mat-header-cell {
+    border-color: rgba(0, 0, 0, 0.12);
+  }
 }
 
 * {
@@ -58,7 +63,7 @@ body {
 }
 
 [bold] {
-  font-weight: bold;
+  font-weight: 500;
 }
 
 snack-bar-container.mat-snack-bar-container {
@@ -78,6 +83,11 @@ snack-bar-container.mat-snack-bar-container {
   content: '\e000';
   color: #f44336;
   margin-right: 8px;
+}
+
+td.mat-cell,
+th.mat-header-cell {
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .mat-bottom-sheet-container {

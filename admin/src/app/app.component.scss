@@ -5,6 +5,7 @@ mat-toolbar[navbar] {
   right: 0;
   z-index: 2;
   box-shadow: 0 3px 1.5px -1.5px #0d102517;
+  height: 64px;
 
   mat-toolbar-row {
     justify-content: space-between;
@@ -19,7 +20,7 @@ mat-sidenav-content {
 }
 
 mat-sidenav-content {
-  padding: 96px 32px;
+  padding-top: 64px;
   max-width: 992px;
   margin: 0 auto;
 }
@@ -28,6 +29,7 @@ button[mat-fab] {
   position: fixed;
   bottom: 32px;
   right: 32px;
+  z-index: 20;
 
   mat-icon {
     font-size: 48px;

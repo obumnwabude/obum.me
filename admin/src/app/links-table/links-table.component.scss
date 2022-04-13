@@ -1,0 +1,38 @@
+[loader] {
+  max-width: 992px;
+  margin: 64px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+[table-container] {
+  width: fit-content;
+  margin: 0 auto 64px auto;
+}
+
+th.mat-header-cell {
+  font-size: 16px;
+}
+
+td.mat-cell,
+th.mat-header-cell {
+  padding-right: 24px;
+  padding-left: 24px;
+  white-space: nowrap;
+}
+
+td.mat-cell {
+  border-right-width: 1px;
+  border-right-style: solid;
+}
+
+td.mat-column-edit,
+th.mat-column-edit {
+  border-bottom: none;
+}
+
+td.mat-column-short {
+  border-left-width: 1px;
+  border-left-style: solid;
+}
