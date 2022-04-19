@@ -1,5 +1,5 @@
 <obum-links-table (edit)="openEditor($event)"></obum-links-table>
 
-<button mat-fab (click)="openEditor(null)">
+<button mat-fab *ngIf="auth.currentUser" (click)="openEditor(null)">
   <mat-icon>add</mat-icon>
 </button>

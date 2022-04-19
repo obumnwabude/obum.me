@@ -9,6 +9,7 @@ import { firstValueFrom } from 'rxjs';
 import { EditorComponent } from '../editor/editor.component';
 import { EditorService } from '../editor.service';
 import { Link } from '../link';
+import { Auth } from '@angular/fire/auth';
 
 @Component({
   templateUrl: './dashboard.component.html',
@@ -22,6 +23,7 @@ export class DashboardComponent implements OnDestroy {
     .subscribe((b) => (this.isLargeScreen = b.matches));
 
   constructor(
+    public auth: Auth,
     private breakpoint: BreakpointObserver,
     private bs: MatBottomSheet,
     private editorService: EditorService
