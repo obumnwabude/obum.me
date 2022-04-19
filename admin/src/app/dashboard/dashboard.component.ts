@@ -1,14 +1,14 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import {
   MatBottomSheet,
   MatBottomSheetRef
 } from '@angular/material/bottom-sheet';
-import { MatSidenav } from '@angular/material/sidenav';
 import { firstValueFrom } from 'rxjs';
 
 import { EditorComponent } from '../editor/editor.component';
-import { SidenavService } from '../sidenav.service';
+import { EditorService } from '../editor.service';
+import { Link } from '../link';
 
 @Component({
   templateUrl: './dashboard.component.html',
@@ -24,14 +24,16 @@ export class DashboardComponent implements OnDestroy {
   constructor(
     private breakpoint: BreakpointObserver,
     private bs: MatBottomSheet,
-    private sidenav: SidenavService
+    private editorService: EditorService
   ) {}
 
   ngOnDestroy = () => this.breakpointSub.unsubscribe();
 
-  newLink(): void {
+  openEditor(link: Link | null) {
+    this.editorService.currentLink = link;
+
     if (this.isLargeScreen) {
-      this.sidenav.component.open();
+      this.editorService.sidenav.open();
     } else {
       this.bsRef = this.bs.open(EditorComponent);
       const closeSub = this.bsRef.instance.cancel.subscribe((_) =>

@@ -24,7 +24,7 @@ import { Link } from '../link';
 })
 export class LinksTableComponent implements OnInit {
   columns: string[] = [];
-  @Output() edit = new EventEmitter();
+  @Output() edit = new EventEmitter<Link>();
   isSignedIn = false;
   isFetchingLinks = true;
   links: Link[] = [];

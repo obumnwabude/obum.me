@@ -47,3 +47,12 @@ export const onCreateLink = functions.firestore
       .set({ id: context.params['linkId'] }, { merge: true })
       .catch((error) => console.error(error));
   });
+
+export const reduceLinkCount = functions.firestore
+  .document('/links/{linkId}')
+  .onDelete(async () => {
+    await db
+      .doc('/counters/links')
+      .set({ count: admin.firestore.FieldValue.increment(-1) }, { merge: true })
+      .catch((e) => console.error(e));
+  });

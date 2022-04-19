@@ -10,7 +10,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { SPINNER } from 'ngx-ui-loader';
 
 import { constants } from './constants';
-import { SidenavService } from './sidenav.service';
+import { EditorService } from './editor.service';
 import { ThemingService } from './theming.service';
 
 @Component({
@@ -28,12 +28,12 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   constructor(
     private overlay: OverlayContainer,
-    private sidenav: SidenavService,
+    private editorService: EditorService,
     public theming: ThemingService
   ) {}
 
   ngAfterViewInit(): void {
-    this.sidenav.component = this.snav;
+    this.editorService.sidenav = this.snav;
   }
 
   ngOnInit(): void {

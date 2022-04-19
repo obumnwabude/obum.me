@@ -1,5 +1,5 @@
-<obum-links-table></obum-links-table>
+<obum-links-table (edit)="openEditor($event)"></obum-links-table>
 
-<button mat-fab (click)="newLink()">
+<button mat-fab (click)="openEditor(null)">
   <mat-icon>add</mat-icon>
 </button>

@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
+import { Link } from './link';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SidenavService {
-  component!: MatSidenav;
+export class EditorService {
+  currentLink: Link | null = null;
+  sidenav!: MatSidenav;
 }
