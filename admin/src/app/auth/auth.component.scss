@@ -1,0 +1,39 @@
+[loader],
+[sign-in-card] {
+  max-width: 512px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  padding: 32px;
+  width: fit-content;
+}
+
+[loader] > div {
+  height: 256px;
+  width: 256px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+[sign-in-card] {
+  margin-top: 64px;
+}
+
+[heading] {
+  font-weight: normal;
+  font-size: 20px;
+  margin-bottom: 32px;
+  text-decoration: underline;
+  text-decoration-style: double;
+  text-decoration-thickness: 0.5px;
+}
+
+img[google-logo-sign-in-button] {
+  width: 1rem;
+  margin-right: 0.5rem;
+}
+
+[sign-in-spinner] {
+  margin: 6px 32px;
+}

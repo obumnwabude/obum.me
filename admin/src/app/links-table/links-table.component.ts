@@ -5,6 +5,7 @@ import {
   OnInit,
   Output
 } from '@angular/core';
+import { Auth } from '@angular/fire/auth';
 import {
   collection,
   Firestore,
@@ -22,18 +23,31 @@ import { Link } from '../link';
   styleUrls: ['./links-table.component.scss']
 })
 export class LinksTableComponent implements OnInit {
+  columns: string[] = [];
   @Output() edit = new EventEmitter();
-  columns = ['edit', 'short', 'long', 'createdAt'];
+  isSignedIn = false;
   isFetchingLinks = true;
   links: Link[] = [];
 
   constructor(
+    private auth: Auth,
     private firestore: Firestore,
     private ref: ApplicationRef,
     private snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
+    this.auth.onAuthStateChanged((u) => {
+      this.isSignedIn = !!u;
+      this.ref.tick();
+      this.columns = [
+        ...(this.isSignedIn ? ['edit'] : []),
+        'short',
+        'long',
+        'createdAt'
+      ];
+    });
+
     onSnapshot(
       query(
         collection(this.firestore, 'links').withConverter(Link.converter),

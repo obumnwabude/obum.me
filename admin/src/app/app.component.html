@@ -7,7 +7,7 @@
 
 <mat-toolbar navbar>
   <mat-toolbar-row>
-    <span>Admin</span>
+    <a routerLink="/" mat-button><h1>Admin</h1></a>
     <button mat-icon-button (click)="changeTheme()" title="Switch Theme">
       <mat-icon outlined>{{
         themes.indexOf(themeMode) === 0 ? themes[1] : themes[0]
@@ -26,11 +26,9 @@
   >
     <obum-editor (cancel)="snav.close()" *ngIf="snav.opened"></obum-editor>
   </mat-sidenav>
-  <mat-sidenav-content>
-    <obum-links-table></obum-links-table>
 
-    <button mat-fab (click)="newLink()">
-      <mat-icon>add</mat-icon>
-    </button>
+  <mat-sidenav-content>
+    <router-outlet></router-outlet>
   </mat-sidenav-content>
+
 </mat-sidenav-container>

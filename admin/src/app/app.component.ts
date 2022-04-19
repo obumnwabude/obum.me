@@ -1,16 +1,16 @@
-import { Component, HostBinding, OnInit, ViewChild } from '@angular/core';
-import { BreakpointObserver } from '@angular/cdk/layout';
-import { OverlayContainer } from '@angular/cdk/overlay';
 import {
-  MatBottomSheet,
-  MatBottomSheetRef
-} from '@angular/material/bottom-sheet';
+  AfterViewInit,
+  Component,
+  HostBinding,
+  OnInit,
+  ViewChild
+} from '@angular/core';
+import { OverlayContainer } from '@angular/cdk/overlay';
 import { MatSidenav } from '@angular/material/sidenav';
 import { SPINNER } from 'ngx-ui-loader';
-import { firstValueFrom } from 'rxjs';
 
 import { constants } from './constants';
-import { EditorComponent } from './editor/editor.component';
+import { SidenavService } from './sidenav.service';
 import { ThemingService } from './theming.service';
 
 @Component({
@@ -18,33 +18,25 @@ import { ThemingService } from './theming.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
-  bsRef!: MatBottomSheetRef<EditorComponent>;
-  isLargeScreen = false;
+export class AppComponent implements AfterViewInit, OnInit {
   // the 500 level of mat light blue palette
   primaryColor = '#03A9F4';
   SPINNER = SPINNER;
   themes = constants.THEMES;
   @ViewChild('snav') snav!: MatSidenav;
   @HostBinding('class') public themeMode = constants.DEFAULT_THEME;
+
   constructor(
-    private breakpoint: BreakpointObserver,
-    private bs: MatBottomSheet,
     private overlay: OverlayContainer,
+    private sidenav: SidenavService,
     public theming: ThemingService
   ) {}
 
-  ngOnInit(): void {
-    this.breakpoint.observe('(min-width: 768px)').subscribe((b) => {
-      if (b.matches) {
-        this.isLargeScreen = true;
-        this.bsRef?.dismiss();
-      } else {
-        this.isLargeScreen = false;
-        this.snav?.close();
-      }
-    });
+  ngAfterViewInit(): void {
+    this.sidenav.component = this.snav;
+  }
 
+  ngOnInit(): void {
     this.theming.theme.subscribe((theme: string) => {
       this.themeMode = theme;
       const oCClasses = this.overlay.getContainerElement().classList;
@@ -60,19 +52,5 @@ export class AppComponent implements OnInit {
         : this.themes[0];
     this.theming.theme.next(this.themeMode);
     localStorage.setItem(constants.LS_THEME_KEY, this.themeMode);
-  }
-
-  newLink(): void {
-    if (this.isLargeScreen) {
-      this.snav.open();
-    } else {
-      this.bsRef = this.bs.open(EditorComponent);
-      const closeSub = this.bsRef.instance.cancel.subscribe((_) =>
-        this.bsRef.dismiss()
-      );
-      firstValueFrom(this.bsRef.afterDismissed()).then(() =>
-        closeSub.unsubscribe()
-      );
-    }
   }
 }

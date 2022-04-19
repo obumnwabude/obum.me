@@ -29,15 +29,30 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { Route, RouterModule } from '@angular/router';
 import { NgxUiLoaderModule } from 'ngx-ui-loader';
 
 import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
+import { AuthComponent } from './auth/auth.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
 import { EditorComponent } from './editor/editor.component';
 import { LinksTableComponent } from './links-table/links-table.component';
 
+const routes: Route[] = [
+  { path: 'auth', component: AuthComponent },
+  { path: '', component: DashboardComponent },
+  { path: '**', redirectTo: '/', pathMatch: 'full' }
+];
+
 @NgModule({
-  declarations: [AppComponent, EditorComponent, LinksTableComponent],
+  declarations: [
+    AppComponent,
+    AuthComponent,
+    DashboardComponent,
+    EditorComponent,
+    LinksTableComponent
+  ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -69,7 +84,8 @@ import { LinksTableComponent } from './links-table/links-table.component';
       }
       return firestore;
     }),
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    RouterModule.forRoot(routes)
   ],
   providers: [
     ScreenTrackingService,

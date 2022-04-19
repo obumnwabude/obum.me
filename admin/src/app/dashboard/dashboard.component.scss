@@ -1,0 +1,18 @@
+
+button[mat-fab] {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 20;
+
+  mat-icon {
+    font-size: 48px;
+    margin-top: -24px;
+    margin-left: -24px;
+  }
+
+  @media (min-width: 1232px) {
+    bottom: 48px;
+    right: calc(((100vw - 1232px) / 2) + 32px);
+  }
+}

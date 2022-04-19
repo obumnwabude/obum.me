@@ -3,7 +3,7 @@
 </div>
 <div table-container *ngIf="!isFetchingLinks && links.length > 0">
   <table mat-table [dataSource]="links" class="mat-elevation-z1">
-    <ng-container matColumnDef="edit">
+    <ng-container matColumnDef="edit" *ngIf="isSignedIn">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let link">
         <button
