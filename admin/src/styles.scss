@@ -1,0 +1,249 @@
+@use '@angular/material' as mat;
+
+/*
+ * Design tokens mirror obumnwabude.com: royal blue on cool white in light mode,
+ * sky blue on near-black in dark mode, Inter, frosted glass surfaces.
+ * Every token uses light-dark(), so switching theme only flips `color-scheme` on <html>.
+ */
+:root {
+  --app-bg: light-dark(#f8fafd, #07090e);
+  --text: light-dark(#0b1329, #f1f5f9);
+  --gray: light-dark(#5b6b82, #94a3b8);
+  --primary: light-dark(#101e9f, #60a5fa);
+  --primary-fg: light-dark(#ffffff, #060911);
+  --accent-cyan: light-dark(#0284c7, #38bdf8);
+  --danger: light-dark(#c62828, #f87171);
+
+  --glass-tint: light-dark(rgb(255 255 255 / 72%), rgb(13 20 36 / 58%));
+  --glass-strong: light-dark(rgb(255 255 255 / 90%), rgb(11 15 25 / 92%));
+  --glass-border: light-dark(rgb(16 30 159 / 10%), rgb(255 255 255 / 9%));
+  --glass-border-hover: light-dark(rgb(16 30 159 / 28%), rgb(96 165 250 / 26%));
+  --glass-sheen: linear-gradient(180deg, light-dark(rgb(255 255 255 / 70%), rgb(255 255 255 / 6%)) 0%, transparent 100%);
+  --shadow-glass: light-dark(
+    0 6px 17px -4px rgb(16 30 159 / 5%),
+    0 7px 20px -4px rgb(0 0 0 / 30%)
+  );
+  --shadow-glass-hover: light-dark(
+    0 10px 22px -4px rgb(16 30 159 / 8%),
+    0 11px 26px -4px rgb(0 0 0 / 40%)
+  );
+
+  color-scheme: light;
+}
+
+html {
+  height: 100%;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$blue-palette,
+        tertiary: mat.$cyan-palette,
+      ),
+      typography: (
+        plain-family: 'Inter, system-ui, sans-serif',
+        brand-family: 'Inter, system-ui, sans-serif',
+      ),
+      density: 0,
+    )
+  );
+  @include mat.theme-overrides(
+    (
+      primary: var(--primary),
+      on-primary: var(--primary-fg),
+      surface: var(--app-bg),
+      on-surface: var(--text),
+      on-surface-variant: var(--gray),
+      outline: light-dark(rgb(16 30 159 / 32%), rgb(255 255 255 / 24%)),
+      outline-variant: var(--glass-border),
+      surface-container: var(--glass-strong),
+      surface-container-high: var(--glass-strong),
+      surface-container-low: var(--glass-strong),
+      inverse-surface: light-dark(#0b1329, #f1f5f9),
+      inverse-on-surface: light-dark(#f1f5f9, #0b1329),
+      inverse-primary: light-dark(#60a5fa, #101e9f),
+      error: var(--danger),
+      secondary-container: light-dark(rgb(16 30 159 / 12%), rgb(96 165 250 / 18%)),
+      on-secondary-container: var(--text),
+    )
+  );
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--app-bg);
+  color: var(--text);
+  font: var(--mat-sys-body-large);
+  font-family: Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'cv11', 'ss01';
+}
+
+.material-symbols-rounded {
+  font-variation-settings: 'opsz' 24, 'wght' 450, 'FILL' 0, 'GRAD' 0;
+}
+
+/* Frosted glass, shared by the top bar, toolbar, list, side panel and overlays. */
+.glass {
+  position: relative;
+  border: 1px solid var(--glass-border);
+  border-radius: 22px;
+  background: var(--glass-sheen), var(--glass-tint);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  box-shadow: var(--shadow-glass);
+}
+
+.glass-pill,
+.glass-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 13px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-tint);
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 140ms ease, color 140ms ease, box-shadow 140ms ease;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+  &:hover,
+  &[aria-expanded='true'] {
+    border-color: var(--glass-border-hover);
+    color: var(--primary);
+  }
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+.glass-icon-button {
+  width: 40px;
+  padding: 0;
+}
+
+kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 6px;
+  border: 1px solid var(--glass-border);
+  color: var(--gray);
+  font: 500 12px/1 Inter, system-ui, sans-serif;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Material overlays in glass */
+.glass-menu.mat-mdc-menu-panel,
+.glass-dialog .mat-mdc-dialog-surface,
+.glass-sheet.mat-bottom-sheet-container {
+  background: var(--glass-strong);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-glass-hover);
+}
+
+.glass-menu.mat-mdc-menu-panel {
+  border-radius: 16px;
+  min-width: 220px;
+
+  .mat-mdc-menu-item {
+    border-radius: 10px;
+    margin: 0 6px;
+    width: calc(100% - 12px);
+    min-height: 44px;
+  }
+  .mat-mdc-menu-item .mat-mdc-menu-item-text {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+  .check {
+    margin-left: auto;
+    margin-right: 0;
+    color: var(--primary);
+  }
+  .is-active {
+    color: var(--primary);
+  }
+}
+
+.glass-dialog .mat-mdc-dialog-surface {
+  border-radius: 24px;
+}
+
+.palette-dialog .mat-mdc-dialog-surface {
+  padding: 0;
+  overflow: hidden;
+}
+
+.glass-sheet.mat-bottom-sheet-container {
+  border-radius: 26px 26px 0 0;
+  padding: 0;
+  max-height: 88dvh;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.mat-drawer.side-panel {
+  background: var(--glass-sheen), var(--glass-strong);
+  border-color: var(--glass-border);
+}
+
+.mat-drawer-backdrop.mat-drawer-shown {
+  background: light-dark(rgb(11 19 41 / 18%), rgb(0 0 0 / 45%));
+  backdrop-filter: blur(2px);
+}
+
+.glass-snack .mat-mdc-snackbar-surface {
+  border-radius: 14px;
+}
+
+.mat-mdc-button-base {
+  --mat-button-filled-container-shape: 13px;
+  --mat-button-outlined-container-shape: 13px;
+  --mat-button-text-container-shape: 13px;
+}
+
+.mat-mdc-form-field {
+  --mat-form-field-outlined-container-shape: 14px;
+}
+
+/* Theme switch: the portfolio's circular reveal. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

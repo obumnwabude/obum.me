@@ -1,0 +1,190 @@
+<header class="panel-head">
+  @if (isNew()) {
+    <h2>New short link</h2>
+  } @else if (link(); as current) {
+    <h2 class="wordmark">
+      <span class="host">{{ host }}/</span><span class="name">{{ current.short || '(home)' }}</span>
+    </h2>
+  } @else {
+    <h2>Link not found</h2>
+  }
+  <button class="icon-action" type="button" aria-label="Close panel" (click)="panel.close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</header>
+
+@if (editing()) {
+  <form class="editor" [formGroup]="form" (ngSubmit)="save()">
+    <mat-form-field appearance="outline">
+      <mat-label>Destination URL</mat-label>
+      <input matInput formControlName="long" type="url" inputmode="url" autocomplete="off" placeholder="https://" cdkFocusInitial />
+      <mat-hint>Paste the full link people should land on.</mat-hint>
+      @if (form.controls.long.hasError('required')) {
+        <mat-error>Add the destination URL.</mat-error>
+      } @else if (form.controls.long.hasError('pattern')) {
+        <mat-error>Start the URL with https://</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Short name</mat-label>
+      <span matTextPrefix class="prefix">{{ host }}/</span>
+      <input matInput formControlName="short" autocomplete="off" autocapitalize="off" spellcheck="false" (input)="onShortInput()" />
+      <button matSuffix mat-icon-button type="button" matTooltip="Suggest from URL" aria-label="Suggest a short name from the URL" (click)="suggest()">
+        <mat-icon>auto_awesome</mat-icon>
+      </button>
+      @if (form.controls.short.hasError('required')) {
+        <mat-error>Pick a short name.</mat-error>
+      } @else if (form.controls.short.hasError('pattern')) {
+        <mat-error>Use letters, numbers, hyphens or underscores.</mat-error>
+      } @else if (form.controls.short.hasError('reserved')) {
+        <mat-error>Names starting with _ are reserved.</mat-error>
+      } @else if (form.controls.short.hasError('taken')) {
+        <mat-error>Already used for {{ form.controls.short.getError('taken') }}</mat-error>
+      } @else if (form.controls.short.hasError('maxlength')) {
+        <mat-error>Keep it under 80 characters.</mat-error>
+      } @else {
+        <mat-hint>Case-sensitive. People will type this.</mat-hint>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Tags</mat-label>
+      <mat-chip-grid #chipGrid aria-label="Tags">
+        @for (tag of tags(); track tag) {
+          <mat-chip-row (removed)="removeTag(tag)">
+            #{{ tag }}
+            <button matChipRemove type="button" [attr.aria-label]="'Remove tag ' + tag"><mat-icon>cancel</mat-icon></button>
+          </mat-chip-row>
+        }
+        <input placeholder="Add a tag" [matChipInputFor]="chipGrid" [matChipInputSeparatorKeyCodes]="separatorKeys" (matChipInputTokenEnd)="addTag($event)" />
+      </mat-chip-grid>
+      <mat-hint>Optional. Press Enter after each tag; tags become filters.</mat-hint>
+    </mat-form-field>
+
+    <div class="form-actions">
+      @if (link()) {
+        <button mat-button type="button" class="danger" [disabled]="saving()" (click)="remove()">
+          <mat-icon>delete</mat-icon>Delete
+        </button>
+      }
+      <span class="spacer"></span>
+      <button mat-button type="button" (click)="cancel()">Cancel</button>
+      <button mat-flat-button type="submit" [disabled]="saving()">
+        @if (saving()) {
+          <mat-progress-spinner mode="indeterminate" diameter="18" />
+        }
+        {{ link() ? 'Save changes' : 'Create link' }}
+      </button>
+    </div>
+  </form>
+} @else if (link(); as current) {
+  <section class="details">
+    <div class="quick-actions">
+      <button mat-flat-button type="button" (click)="actions.copy(current.short)"><mat-icon>content_copy</mat-icon>Copy</button>
+      <button mat-stroked-button type="button" (click)="void actions.showQr(current.short)"><mat-icon>qr_code_2</mat-icon>QR code</button>
+      @if (auth.isAdmin()) {
+        <button mat-stroked-button type="button" (click)="edit()"><mat-icon>edit</mat-icon>Edit</button>
+      }
+    </div>
+
+    @if (destination(); as dest) {
+      <a class="destination" [href]="current.long" target="_blank" rel="noopener">
+        <img [src]="dest.favicon" alt="" width="20" height="20" />
+        <span>
+          <span class="label">{{ dest.label }}</span>
+          <span class="url">{{ current.long }}</span>
+        </span>
+        <mat-icon>open_in_new</mat-icon>
+      </a>
+    }
+
+    <dl class="facts">
+      <div>
+        <dt>Clicks</dt>
+        <dd>{{ compact(current.clicks) }}</dd>
+      </div>
+      <div>
+        <dt>Last clicked</dt>
+        <dd>{{ timeAgo(current.lastClickedAt) }}</dd>
+      </div>
+      <div>
+        <dt>Created</dt>
+        <dd>{{ current.createdAt | date: 'd MMM y' }}</dd>
+      </div>
+      @if (current.updatedAt) {
+        <div>
+          <dt>Edited</dt>
+          <dd>{{ timeAgo(current.updatedAt) }}</dd>
+        </div>
+      }
+    </dl>
+
+    @if (current.tags.length) {
+      <div class="tags">
+        @for (tag of current.tags; track tag) {
+          <span class="tag">#{{ tag }}</span>
+        }
+      </div>
+    }
+
+    @if (auth.isAdmin()) {
+      <section class="analytics" aria-label="Click analytics">
+        <div class="analytics-head">
+          <h3>Clicks over time</h3>
+          <mat-button-toggle-group hideSingleSelectionIndicator [value]="days()" (change)="days.set($event.value)" aria-label="Time range">
+            <mat-button-toggle [value]="7">7d</mat-button-toggle>
+            <mat-button-toggle [value]="30">30d</mat-button-toggle>
+            <mat-button-toggle [value]="90">90d</mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+
+        @if (stats.isLoading() && !stats.hasValue()) {
+          <div class="analytics-state"><mat-progress-spinner mode="indeterminate" diameter="28" /></div>
+        } @else if (stats.error(); as error) {
+          <p class="analytics-state">{{ error.message }}</p>
+        } @else if (stats.value(); as data) {
+          <p class="range-total"><strong>{{ statsTotal() }}</strong> clicks in the last {{ data.days }} days, link previews and bots excluded.</p>
+          <obum-bar-chart [data]="data.daily" [days]="data.days" />
+
+          <div class="breakdowns">
+            <div>
+              <h4>Countries</h4>
+              @for (row of share(data.countries); track row.name) {
+                <div class="meter"><span>{{ countryLabel(row.name) }}</span><span>{{ row.clicks }}</span><i [style.width.%]="row.percent"></i></div>
+              } @empty {
+                <p class="empty">No clicks yet</p>
+              }
+            </div>
+            <div>
+              <h4>Came from</h4>
+              @for (row of share(data.referrers); track row.name) {
+                <div class="meter"><span>{{ row.name === '(direct)' ? 'Direct or an app' : row.name }}</span><span>{{ row.clicks }}</span><i [style.width.%]="row.percent"></i></div>
+              } @empty {
+                <p class="empty">No clicks yet</p>
+              }
+            </div>
+            <div>
+              <h4>Devices</h4>
+              @for (row of share(data.devices); track row.name) {
+                <div class="meter"><span>{{ deviceLabels[row.name] ?? row.name }}</span><span>{{ row.clicks }}</span><i [style.width.%]="row.percent"></i></div>
+              } @empty {
+                <p class="empty">No clicks yet</p>
+              }
+            </div>
+            <div>
+              <h4>Cities</h4>
+              @for (row of share(data.cities); track row.name) {
+                <div class="meter"><span>{{ row.name }}</span><span>{{ row.clicks }}</span><i [style.width.%]="row.percent"></i></div>
+              } @empty {
+                <p class="empty">No clicks yet</p>
+              }
+            </div>
+          </div>
+        }
+      </section>
+    }
+  </section>
+} @else if (!linksService.loading()) {
+  <p class="gone">This link was deleted or never existed.</p>
+}

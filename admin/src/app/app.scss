@@ -1,0 +1,141 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+/* One quiet glow behind everything, so the glass has something to blur. */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60vmax 40vmax at 8% -10%, rgb(from var(--primary) r g b / 14%), transparent 70%),
+    radial-gradient(50vmax 36vmax at 105% 110%, rgb(from var(--accent-cyan) r g b / 10%), transparent 70%);
+}
+
+.topbar {
+  position: sticky;
+  top: 10px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 1088px;
+  margin: 10px auto 0;
+  padding: 8px 10px 8px 18px;
+  border-radius: 20px;
+}
+
+.brand {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+
+  .dot {
+    color: var(--primary);
+  }
+}
+
+.section {
+  color: var(--gray);
+  font-size: 15px;
+  font-weight: 500;
+  padding-left: 10px;
+  border-left: 1px solid var(--glass-border);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.palette-trigger kbd {
+  margin-left: 2px;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid var(--glass-border);
+  background: var(--glass-tint);
+  color: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  &:hover,
+  &:focus-visible {
+    border-color: var(--primary);
+  }
+}
+
+.account-placeholder {
+  width: 40px;
+}
+
+.account-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.3;
+  opacity: 1 !important;
+  small {
+    color: var(--gray);
+  }
+}
+
+.sign-in img {
+  display: block;
+}
+
+.shell {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+  min-height: calc(100dvh - 72px);
+  overflow: visible;
+}
+
+.page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 20px 16px 64px;
+}
+
+.side-panel {
+  width: min(480px, 100vw);
+  border-radius: 24px 0 0 24px;
+}
+
+@media (max-width: 1120px) {
+  .topbar {
+    margin: 10px 16px 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .topbar {
+    top: 0;
+    margin: 0;
+    border-radius: 0 0 18px 18px;
+    padding: 8px 8px 8px 14px;
+  }
+  .palette-trigger {
+    .label,
+    kbd {
+      display: none;
+    }
+  }
+  .page {
+    padding: 14px 12px 48px;
+  }
+}

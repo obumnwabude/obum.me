@@ -1,0 +1,63 @@
+<div class="backdrop" aria-hidden="true"></div>
+
+<header class="topbar glass">
+  <a class="brand" href="https://obumnwabude.com" target="_blank" rel="noopener" aria-label="obumnwabude.com">
+    Obum<span class="dot">.</span>
+  </a>
+  <span class="section">Links</span>
+
+  <span class="spacer"></span>
+
+  <button class="glass-pill palette-trigger" type="button" (click)="void openPalette()" aria-label="Open command palette">
+    <mat-icon>bolt</mat-icon>
+    <span class="label">Jump to</span>
+    <kbd>{{ isMac ? '⌘' : 'Ctrl' }} K</kbd>
+  </button>
+
+  <obum-theme-menu />
+
+  @if (!auth.ready()) {
+    <span class="account-placeholder"></span>
+  } @else if (auth.user(); as user) {
+    <button class="avatar" type="button" [matMenuTriggerFor]="accountMenu" [attr.aria-label]="'Account: ' + (user.email ?? 'signed in')">
+      @if (user.photoURL) {
+        <img [src]="user.photoURL" alt="" referrerpolicy="no-referrer" width="34" height="34" />
+      } @else {
+        <mat-icon>person</mat-icon>
+      }
+    </button>
+    <mat-menu #accountMenu="matMenu" xPosition="before" class="glass-menu">
+      <div class="account-info" mat-menu-item disabled>
+        <span>{{ user.displayName ?? 'Signed in' }}</span>
+        <small>{{ user.email }}{{ auth.isAdmin() ? ' · admin' : '' }}</small>
+      </div>
+      <button mat-menu-item type="button" (click)="auth.signOut()"><mat-icon>logout</mat-icon>Sign out</button>
+    </mat-menu>
+  } @else {
+    <button class="glass-pill sign-in" type="button" (click)="auth.signIn()" [disabled]="auth.busy()">
+      <img src="google.svg" alt="" width="18" height="18" />
+      <span>Sign in</span>
+    </button>
+  }
+</header>
+
+<mat-sidenav-container class="shell" [hasBackdrop]="true">
+  <mat-sidenav
+    class="side-panel glass"
+    position="end"
+    mode="over"
+    [opened]="panelOpen() && wide()"
+    (closedStart)="panel.close()"
+    [autoFocus]="'first-tabbable'"
+  >
+    @if (panelOpen() && wide()) {
+      <obum-link-panel />
+    }
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <main class="page">
+      <obum-links-view />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>
