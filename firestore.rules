@@ -1,13 +1,26 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
 
+    // Short links: public to read (the admin page lists them, and the Worker resolves them).
     match /links/{linkId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.token.admin
+      allow write: if isAdmin();
     }
+
+    // counters/links is kept by the admin app; counters/requests by the Worker (service account).
+    match /counters/{counterId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // requests: written only by the Worker's service account, which bypasses these rules.
   }
 }

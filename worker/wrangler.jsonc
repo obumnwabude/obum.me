@@ -1,0 +1,26 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "obum-me",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "account_id": "299ea0eaa1b6cdb1eafee1857f24d888",
+  "workers_dev": false,
+  "routes": [
+    { "pattern": "obum.me", "custom_domain": true },
+    { "pattern": "www.obum.me", "custom_domain": true }
+  ],
+  // 404.css, favicon.ico, obum.jpg and robots.txt are served straight from here.
+  "assets": { "directory": "./public", "binding": "ASSETS" },
+  "analytics_engine_datasets": [{ "binding": "CLICKS", "dataset": "obum_me_clicks" }],
+  "vars": {
+    "FIREBASE_PROJECT_ID": "obumshortener",
+    "CF_ACCOUNT_ID": "299ea0eaa1b6cdb1eafee1857f24d888",
+    "ANALYTICS_DATASET": "obum_me_clicks",
+    "ALLOWED_ORIGINS": "https://admin.obum.me,https://obumshortener.web.app,http://localhost:4200",
+    "HOME_URL": "https://obumnwabude.com/"
+  },
+  // Secrets (set with `pnpm wrangler secret put <NAME>`):
+  //   FIREBASE_SERVICE_ACCOUNT  full JSON of a Firebase service account key
+  //   CF_API_TOKEN              Cloudflare API token with "Account Analytics: Read"
+  "observability": { "enabled": true }
+}

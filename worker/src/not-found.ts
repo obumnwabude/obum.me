@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+/** Same page the old Cloud Function served for unknown short links. */
+export const notFoundHtml = `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="robots" content="nofollow,noindex" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/404.css" />
@@ -32,4 +32,25 @@
       </div>
     </main>
   </body>
-</html>
+</html>`;
+
+export const unavailableHtml = `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="nofollow,noindex" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/404.css" />
+    <title>Try again in a moment | obum.me</title>
+  </head>
+  <body>
+    <main>
+      <div>
+        <h1 heading>This link couldn't load right now</h1>
+        <div message>
+          <p>The link database didn't respond. Refresh the page in a few seconds.</p>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>`;
