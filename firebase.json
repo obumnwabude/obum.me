@@ -15,6 +15,13 @@
       "target": "public",
       "public": "public",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "redirects": [
+        {
+          "source": "/",
+          "destination": "https://obumnwabude.com/",
+          "type": 301
+        }
+      ],
       "rewrites": [
         {
           "source": "/",
