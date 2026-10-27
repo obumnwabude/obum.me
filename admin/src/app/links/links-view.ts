@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, afterNextRender, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -21,9 +21,9 @@ type SortKey = 'newest' | 'oldest' | 'clicks' | 'trending' | 'recent' | 'az';
 const SORTS: { key: SortKey; label: string; adminOnly?: boolean }[] = [
   { key: 'newest', label: 'Newest first' },
   { key: 'oldest', label: 'Oldest first' },
-  { key: 'clicks', label: 'Most clicked' },
+  { key: 'clicks', label: 'Most clicked', adminOnly: true },
   { key: 'trending', label: 'Most clicked in 30 days', adminOnly: true },
-  { key: 'recent', label: 'Recently clicked' },
+  { key: 'recent', label: 'Recently clicked', adminOnly: true },
   { key: 'az', label: 'Short name A–Z' },
 ];
 
@@ -72,9 +72,19 @@ export class LinksView {
   protected readonly compact = compactNumber;
   protected readonly timeAgo = timeAgo;
 
-  private readonly searchInput = viewChild<ElementRef<HTMLInputElement>>('search');
+  private readonly sentinel = viewChild<ElementRef<HTMLElement>>('sentinel');
+  private readonly chipsWrap = viewChild<ElementRef<HTMLElement>>('chipsWrap');
+  private readonly chipScroller = viewChild<ElementRef<HTMLElement>>('chipScroller');
 
-  protected readonly query = signal('');
+  protected readonly canScrollLeft = signal(false);
+  protected readonly canScrollRight = signal(false);
+  /** Distance from the page content to each screen edge, so the chips can run edge to edge. */
+  protected readonly bleed = signal({ left: 16, right: 16 });
+
+  /** True while the toolbar is stuck under the header, so it can switch to glass. */
+  protected readonly stuck = signal(false);
+  protected readonly skeletons = [0, 1, 2, 3, 4, 5];
+
   protected readonly filter = signal<string>(stored<string>('links.filter', ALL));
   protected readonly sort = signal<SortKey>(stored<SortKey>('links.sort', 'newest'));
   protected readonly sorts = computed(() => SORTS.filter((sort) => !sort.adminOnly || this.auth.isAdmin()));
@@ -102,16 +112,11 @@ export class LinksView {
 
   protected readonly visible = computed(() => {
     const filter = this.filter();
-    const terms = this.query().trim().toLowerCase().split(/\s+/).filter(Boolean);
     const recentClicks = (link: Link) => this.api.overview()?.perLink[link.short]?.total ?? 0;
 
     const rows = this.rows().filter((row) => {
-      if (filter !== ALL) {
-        if (filter.startsWith('#') ? !row.link.tags.includes(filter.slice(1)) : row.label !== filter) return false;
-      }
-      if (!terms.length) return true;
-      const haystack = `${row.link.short} ${row.link.long} ${row.label} ${row.link.tags.join(' ')}`.toLowerCase();
-      return terms.every((term) => haystack.includes(term));
+      if (filter === ALL) return true;
+      return filter.startsWith('#') ? row.link.tags.includes(filter.slice(1)) : row.label === filter;
     });
 
     const time = (date: Date | null) => date?.getTime() ?? 0;
@@ -135,6 +140,44 @@ export class LinksView {
   protected readonly showMisses = signal(false);
 
   constructor() {
+    const destroyRef = inject(DestroyRef);
+    afterNextRender(() => {
+      const target = this.sentinel()?.nativeElement;
+      if (!target) return;
+      const header = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-height')) || 72;
+      const observer = new IntersectionObserver(([entry]) => this.stuck.set(!entry.isIntersecting), {
+        rootMargin: `-${header + 1}px 0px 0px 0px`,
+      });
+      observer.observe(target);
+      destroyRef.onDestroy(() => observer.disconnect());
+
+      // Measure how far the content sits from each screen edge, and keep the arrows in sync.
+      const measure = () => {
+        const wrap = this.chipsWrap()?.nativeElement.parentElement;
+        if (wrap) {
+          const rect = wrap.getBoundingClientRect();
+          const viewport = document.documentElement.clientWidth;
+          this.bleed.set({ left: Math.max(0, Math.round(rect.left)), right: Math.max(0, Math.round(viewport - rect.right)) });
+        }
+        requestAnimationFrame(() => this.updateChipArrows());
+      };
+      const resize = new ResizeObserver(measure);
+      resize.observe(document.documentElement);
+      if (this.chipScroller()) resize.observe(this.chipScroller()!.nativeElement);
+      destroyRef.onDestroy(() => resize.disconnect());
+      measure();
+      // Bring a remembered filter into view.
+      requestAnimationFrame(() =>
+        this.chipScroller()?.nativeElement.querySelector('.chip.active')?.scrollIntoView({ block: 'nearest', inline: 'nearest' }),
+      );
+    });
+
+    // Chips change as links load or tags change: re-check whether there is more to scroll.
+    effect(() => {
+      this.chips();
+      requestAnimationFrame(() => this.updateChipArrows());
+    });
+
     // A saved filter that no longer exists (e.g. its last link was deleted) falls back to All.
     effect(() => {
       const filter = this.filter();
@@ -143,13 +186,30 @@ export class LinksView {
       }
     });
     effect(() => {
-      if (this.sort() === 'trending' && !this.auth.isAdmin() && this.auth.ready()) this.setSort('newest');
+      // Click-based sorts are admin-only, since click numbers are private.
+      const clickSorts: SortKey[] = ['clicks', 'trending', 'recent'];
+      if (clickSorts.includes(this.sort()) && !this.auth.isAdmin() && this.auth.ready()) this.setSort('newest');
     });
   }
 
-  focusSearch(): void {
-    this.searchInput()?.nativeElement.focus();
-    this.searchInput()?.nativeElement.select();
+  protected updateChipArrows(): void {
+    const scroller = this.chipScroller()?.nativeElement;
+    if (!scroller) return;
+    this.canScrollLeft.set(scroller.scrollLeft > 2);
+    this.canScrollRight.set(scroller.scrollLeft + scroller.clientWidth < scroller.scrollWidth - 2);
+  }
+
+  /** Scrolls the chips by most of the visible width in the given direction. */
+  protected scrollChips(direction: 1 | -1): void {
+    const scroller = this.chipScroller()?.nativeElement;
+    if (!scroller) return;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    scroller.scrollBy({ left: direction * scroller.clientWidth * 0.7, behavior: reduceMotion ? 'auto' : 'smooth' });
+  }
+
+  /** Keeps a chip that was just chosen fully visible. */
+  protected revealChip(event: Event): void {
+    (event.currentTarget as HTMLElement).scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
   }
 
   protected setFilter(value: string): void {
@@ -163,7 +223,6 @@ export class LinksView {
   }
 
   protected clearSearch(): void {
-    this.query.set('');
     this.setFilter(ALL);
   }
 
@@ -180,6 +239,6 @@ export class LinksView {
   }
 
   protected hideFavicon(event: Event): void {
-    (event.target as HTMLImageElement).style.visibility = 'hidden';
+    (event.target as HTMLElement).parentElement?.classList.add('missing');
   }
 }

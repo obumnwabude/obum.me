@@ -1,33 +1,51 @@
-<section class="summary" aria-label="Totals">
-  <div class="stat">
-    <strong>{{ linksService.links().length }}</strong>
-    <span>short links</span>
+<section class="intro">
+  <div class="intro-text">
+    <h1>Short links</h1>
+    <p>Every link on {{ host }}, and where it leads.</p>
   </div>
-  <div class="stat">
-    <strong>{{ compact(totalClicks()) }}</strong>
-    <span>clicks counted</span>
+
+  <div class="intro-side">
+    <dl class="figures">
+      <div>
+        <dt>Links</dt>
+        <dd>{{ linksService.loading() ? '–' : linksService.links().length }}</dd>
+      </div>
+      <!-- Click numbers are private: only shown to the signed-in admin. -->
+      @if (auth.isAdmin()) {
+        <div>
+          <dt>Clicks counted</dt>
+          <dd>{{ compact(totalClicks()) }}</dd>
+        </div>
+        <div [matTooltip]="api.overviewError() ?? ''">
+          <dt>Last 30 days</dt>
+          <dd>{{ recentTotal() === null ? '–' : compact(recentTotal()!) }}</dd>
+        </div>
+        @if (misses().length) {
+          <div>
+            <dt>Missing links tried</dt>
+            <dd>
+              <button class="figure-button" type="button" (click)="showMisses.set(!showMisses())" [attr.aria-expanded]="showMisses()">
+                {{ misses().length }}
+                <mat-icon>{{ showMisses() ? 'expand_less' : 'expand_more' }}</mat-icon>
+              </button>
+            </dd>
+          </div>
+        }
+      }
+    </dl>
+    @if (auth.isAdmin()) {
+      <button class="new-link" mat-flat-button type="button" (click)="panel.openNew()">
+        <mat-icon>add_link</mat-icon>
+        New link
+        <kbd aria-hidden="true">N</kbd>
+      </button>
+    }
   </div>
-  @if (auth.isAdmin()) {
-    <div class="stat" [matTooltip]="api.overviewError() ?? ''">
-      <strong>{{ recentTotal() === null ? '–' : compact(recentTotal()!) }}</strong>
-      <span>clicks in 30 days</span>
-    </div>
-    <button
-      class="stat stat-button"
-      type="button"
-      (click)="showMisses.set(!showMisses())"
-      [attr.aria-expanded]="showMisses()"
-      [disabled]="!misses().length"
-    >
-      <strong>{{ misses().length }}</strong>
-      <span>missing links tried</span>
-    </button>
-  }
 </section>
 
 @if (showMisses() && misses().length) {
   <section class="misses glass" aria-label="Short links people tried that don't exist">
-    <p>People opened these, but no link exists with that name. Create one to catch the traffic.</p>
+    <p>People opened these short links in the last 30 days, but none of them exist. Create one to catch that traffic.</p>
     <ul>
       @for (miss of misses(); track miss.slug) {
         <li>
@@ -40,141 +58,160 @@
   </section>
 }
 
-<div class="toolbar glass">
-  <div class="toolbar-row">
-    <label class="search">
-      <mat-icon aria-hidden="true">search</mat-icon>
-      <input
-        #search
-        type="search"
-        placeholder="Search short names, URLs and tags"
-        aria-label="Search links"
-        [value]="query()"
-        (input)="query.set(search.value)"
-        (keydown.escape)="query.set(''); search.blur()"
-      />
-      @if (query()) {
-        <button class="clear" type="button" aria-label="Clear search" (click)="query.set(''); search.focus()">
-          <mat-icon>close</mat-icon>
+<div #sentinel class="sentinel" aria-hidden="true"></div>
+<div class="toolbar" [class.stuck]="stuck()">
+  <!-- Runs edge to edge of the screen; arrows appear only on the side that has more to scroll. -->
+  <div
+    #chipsWrap
+    class="chips-wrap"
+    [class.can-left]="canScrollLeft()"
+    [class.can-right]="canScrollRight()"
+    [style.--bleed-left.px]="bleed().left"
+    [style.--bleed-right.px]="bleed().right"
+  >
+    <div #chipScroller class="chips" role="group" aria-label="Filter by destination or tag" (scroll)="updateChipArrows()">
+      @for (chip of chips(); track chip[0]) {
+        <button
+          class="chip"
+          type="button"
+          [class.active]="filter() === chip[0]"
+          [attr.aria-pressed]="filter() === chip[0]"
+          (click)="setFilter(chip[0]); revealChip($event)"
+        >
+          {{ chip[0] }}<span class="count">{{ chip[1] }}</span>
         </button>
-      } @else {
-        <kbd aria-hidden="true">/</kbd>
       }
-    </label>
-
-    <button class="glass-pill" type="button" [matMenuTriggerFor]="sortMenu" aria-label="Sort links">
-      <mat-icon>swap_vert</mat-icon>
-      <span class="sort-label">{{ sortLabel() }}</span>
+    </div>
+    <button class="chip-arrow left" type="button" tabindex="-1" aria-hidden="true" (click)="scrollChips(-1)">
+      <mat-icon>chevron_left</mat-icon>
     </button>
-    <mat-menu #sortMenu="matMenu" class="glass-menu" xPosition="before">
-      @for (option of sorts(); track option.key) {
-        <button mat-menu-item type="button" (click)="setSort(option.key)">
-          <span>{{ option.label }}</span>
-          @if (sort() === option.key) {
-            <mat-icon class="check">check</mat-icon>
-          }
-        </button>
-      }
-    </mat-menu>
-
-    @if (auth.isAdmin()) {
-      <button class="new-link" mat-flat-button type="button" (click)="panel.openNew()">
-        <mat-icon>add_link</mat-icon>
-        New link
-        <kbd aria-hidden="true">N</kbd>
-      </button>
-    }
-  </div>
-
-  <div class="chips" role="group" aria-label="Filter by destination or tag">
-    @for (chip of chips(); track chip[0]) {
-      <button class="chip" type="button" [class.active]="filter() === chip[0]" [attr.aria-pressed]="filter() === chip[0]" (click)="setFilter(chip[0])">
-        {{ chip[0] }} <span class="count">{{ chip[1] }}</span>
-      </button>
-    }
+    <button class="chip-arrow right" type="button" tabindex="-1" aria-hidden="true" (click)="scrollChips(1)">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
   </div>
 </div>
 
-<section class="list glass" aria-live="polite">
+<div class="list-head">
+  <p class="list-count" aria-live="polite">
+    @if (linksService.loading()) {
+      Loading links
+    } @else {
+      {{ visible().length }} {{ visible().length === 1 ? 'link' : 'links' }}@if (filter() !== 'All') {<span class="in"> in {{ filter() }}</span>}
+    }
+  </p>
+  <button class="sort" type="button" [matMenuTriggerFor]="sortMenu" [attr.aria-label]="'Sort: ' + sortLabel()">
+    <mat-icon>sort</mat-icon>
+    <span class="sort-label">{{ sortLabel() }}</span>
+    <mat-icon class="chevron">expand_more</mat-icon>
+  </button>
+  <mat-menu #sortMenu="matMenu" class="glass-menu choice-menu" xPosition="before">
+    <p class="menu-heading">Sort links by</p>
+    @for (option of sorts(); track option.key) {
+      <button
+        mat-menu-item
+        type="button"
+        role="menuitemradio"
+        [attr.aria-checked]="sort() === option.key"
+        [class.is-active]="sort() === option.key"
+        (click)="setSort(option.key)"
+      >
+        <span class="choice-mark" [class.on]="sort() === option.key" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M4 8.5l2.6 2.6L12 5.6" /></svg></span>
+        <span class="choice-label">{{ option.label }}</span>
+      </button>
+    }
+  </mat-menu>
+</div>
+
+<section class="grid" aria-live="polite" [attr.aria-busy]="linksService.loading()">
   @if (linksService.loading()) {
-    <div class="state"><mat-progress-spinner mode="indeterminate" diameter="32" /></div>
+    @for (item of skeletons; track item) {
+      <div class="card skeleton" aria-hidden="true">
+        <span class="bone short"></span>
+        <span class="bone wide"></span>
+        <span class="bone"></span>
+      </div>
+    }
   } @else if (linksService.error(); as error) {
     <div class="state">
+      <mat-icon>cloud_off</mat-icon>
       <p>Links couldn't load: {{ error }}</p>
       <button mat-stroked-button type="button" (click)="location.reload()">Reload</button>
     </div>
   } @else if (!visible().length) {
     <div class="state">
       @if (linksService.links().length) {
-        <p>No links match{{ query() ? ' “' + query() + '”' : '' }}{{ filter() !== 'All' ? ' in ' + filter() : '' }}.</p>
+        <mat-icon>filter_alt_off</mat-icon>
+        <p>No links in {{ filter() }}.</p>
         <button mat-stroked-button type="button" (click)="clearSearch()">Show all links</button>
-      } @else if (auth.isAdmin()) {
-        <p>No short links yet.</p>
-        <button mat-flat-button type="button" (click)="panel.openNew()">Create the first link</button>
       } @else {
+        <mat-icon>link</mat-icon>
         <p>No short links yet.</p>
+        @if (auth.isAdmin()) {
+          <button mat-flat-button type="button" (click)="panel.openNew()">Create the first link</button>
+        }
       }
     </div>
   } @else {
     @for (row of visible(); track row.link.id) {
       <article
-        class="row"
+        class="card"
         tabindex="0"
-        [attr.aria-label]="host + '/' + row.link.short + ' goes to ' + row.link.long"
+        [attr.aria-label]="host + '/' + (row.link.short || '') + ', goes to ' + row.host"
         (click)="open(row)"
         (keydown.enter)="open(row)"
       >
-        <div class="row-main">
-          <div class="slug">
-            <span class="host">{{ host }}/</span><span class="name">{{ row.link.short || '(home)' }}</span>
-          </div>
-          <div class="destination" [title]="row.link.long">
-            <img [src]="row.favicon" alt="" width="16" height="16" loading="lazy" (error)="hideFavicon($event)" />
-            <span class="dest-host">{{ row.host }}</span>
-            <span class="dest-rest">{{ row.rest }}</span>
-          </div>
-          @if (row.link.tags.length) {
-            <div class="tags">
-              @for (tag of row.link.tags; track tag) {
-                <span class="tag">#{{ tag }}</span>
-              }
-            </div>
-          }
-        </div>
-
-        <div class="row-stats">
-          @if (api.overview()) {
-            <div class="trend" [matTooltip]="recent(row.link.short) + ' clicks in the last 30 days'">
-              <obum-sparkline [values]="series(row.link.short)" />
-            </div>
-          }
-          <div class="clicks">
-            <strong>{{ compact(row.link.clicks) }}</strong>
-            <span>{{ row.link.clicks === 1 ? 'click' : 'clicks' }}</span>
-          </div>
-          <div class="when">
-            @if (row.link.lastClickedAt) {
-              last {{ timeAgo(row.link.lastClickedAt) }}
-            } @else {
-              added {{ row.link.createdAt | date: 'd MMM y' }}
+        <div class="card-top">
+          <span class="favicon-tile"><img [src]="row.favicon" alt="" width="14" height="14" loading="lazy" (error)="hideFavicon($event)" /></span>
+          <span class="dest-label">{{ row.label }}</span>
+          <div class="card-actions">
+            <button class="icon-action" type="button" matTooltip="Copy short link" [attr.aria-label]="'Copy ' + host + '/' + row.link.short" (click)="$event.stopPropagation(); actions.copy(row.link.short)">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+            <button class="icon-action" type="button" matTooltip="QR code" [attr.aria-label]="'QR code for ' + row.link.short" (click)="$event.stopPropagation(); actions.showQr(row.link.short)">
+              <mat-icon>qr_code_2</mat-icon>
+            </button>
+            <a class="icon-action" [href]="row.link.long" target="_blank" rel="noopener" matTooltip="Open destination" [attr.aria-label]="'Open ' + row.link.long" (click)="$event.stopPropagation()">
+              <mat-icon>arrow_outward</mat-icon>
+            </a>
+            @if (auth.isAdmin()) {
+              <button class="icon-action" type="button" matTooltip="Edit" [attr.aria-label]="'Edit ' + row.link.short" (click)="$event.stopPropagation(); panel.openLink(row.link.id, true)">
+                <mat-icon>edit</mat-icon>
+              </button>
             }
           </div>
         </div>
 
-        <div class="row-actions">
-          <button class="icon-action" type="button" matTooltip="Copy short link" [attr.aria-label]="'Copy ' + host + '/' + row.link.short" (click)="$event.stopPropagation(); actions.copy(row.link.short)">
-            <mat-icon>content_copy</mat-icon>
-          </button>
-          <button class="icon-action" type="button" matTooltip="QR code" [attr.aria-label]="'QR code for ' + row.link.short" (click)="$event.stopPropagation(); void actions.showQr(row.link.short)">
-            <mat-icon>qr_code_2</mat-icon>
-          </button>
-          <a class="icon-action" [href]="row.link.long" target="_blank" rel="noopener" matTooltip="Open destination" [attr.aria-label]="'Open ' + row.link.long" (click)="$event.stopPropagation()">
-            <mat-icon>open_in_new</mat-icon>
-          </a>
+        <div class="slug">
+          <span class="host">{{ host }}/</span><span class="name">{{ row.link.short || '(home)' }}</span>
+        </div>
+        <div class="destination" [title]="row.link.long">
+          <span class="dest-host">{{ row.host }}</span><span class="dest-rest">{{ row.rest }}</span>
+        </div>
+        @if (row.link.tags.length) {
+          <div class="tags">
+            @for (tag of row.link.tags; track tag) {
+              <span class="tag">#{{ tag }}</span>
+            }
+          </div>
+        }
+
+        <div class="card-foot">
           @if (auth.isAdmin()) {
-            <button class="icon-action" type="button" matTooltip="Edit" [attr.aria-label]="'Edit ' + row.link.short" (click)="$event.stopPropagation(); panel.openLink(row.link.id, true)">
-              <mat-icon>edit</mat-icon>
-            </button>
+            <span class="clicks"><strong>{{ compact(row.link.clicks) }}</strong> {{ row.link.clicks === 1 ? 'click' : 'clicks' }}</span>
+            @if (api.overview()) {
+              <span class="trend" [matTooltip]="recent(row.link.short) + ' clicks in the last 30 days'">
+                <obum-sparkline [values]="series(row.link.short)" />
+              </span>
+            }
+            <span class="when">
+              @if (row.link.lastClickedAt) {
+                Last clicked {{ timeAgo(row.link.lastClickedAt) }}
+              } @else {
+                Added {{ row.link.createdAt | date: 'd MMM y' }}
+              }
+            </span>
+          } @else {
+            <span class="when">Added {{ row.link.createdAt | date: 'd MMM y' }}</span>
           }
         </div>
       </article>

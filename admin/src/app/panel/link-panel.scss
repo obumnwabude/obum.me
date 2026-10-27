@@ -1,23 +1,57 @@
 :host {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 20px 22px 28px;
+  gap: 28px;
+  padding: 0 32px 36px;
 }
 
+/* Stays put while the panel scrolls. */
 .panel-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+  margin: 0 -32px;
+  padding: 24px 32px 16px;
+  background: linear-gradient(180deg, var(--glass-strong) 75%, transparent);
 
   h2 {
     flex: 1;
     min-width: 0;
     margin: 0;
-    font-size: 22px;
+    font-size: 26px;
+    line-height: 1.2;
     font-weight: 700;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.025em;
     overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 720px) {
+  :host {
+    padding: 0 20px 28px;
+  }
+  .panel-head {
+    margin: 0 -20px;
+    padding: 12px 20px 12px;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      width: 40px;
+      height: 4px;
+      margin-left: -20px;
+      border-radius: 2px;
+      background: var(--glass-border-hover);
+    }
+    h2 {
+      padding-top: 12px;
+      font-size: 22px;
+    }
   }
 }
 
@@ -51,7 +85,7 @@
 .editor {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 18px;
 
   mat-form-field {
     width: 100%;
@@ -84,7 +118,7 @@
 .details {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 28px;
 }
 
 .quick-actions {
@@ -97,9 +131,10 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 14px;
-  border-radius: 16px;
+  padding: 16px 18px;
+  border-radius: 18px;
   border: 1px solid var(--glass-border);
+  background: rgb(from var(--text) r g b / 2%);
   color: inherit;
   text-decoration: none;
   transition: border-color 140ms ease;
@@ -107,11 +142,7 @@
   &:hover {
     border-color: var(--glass-border-hover);
   }
-  img {
-    flex: none;
-    border-radius: 5px;
-  }
-  > span {
+  > span:not(.favicon-tile) {
     flex: 1;
     min-width: 0;
     display: flex;
@@ -164,8 +195,8 @@
 .analytics {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding-top: 18px;
+  gap: 18px;
+  padding-top: 28px;
   border-top: 1px solid var(--glass-border);
 
   h3 {
@@ -210,8 +241,8 @@
 
 .breakdowns {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 24px 28px;
 
   h4 {
     margin: 0 0 6px;

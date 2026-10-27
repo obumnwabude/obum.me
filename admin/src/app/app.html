@@ -1,63 +1,57 @@
 <div class="backdrop" aria-hidden="true"></div>
 
-<header class="topbar glass">
-  <a class="brand" href="https://obumnwabude.com" target="_blank" rel="noopener" aria-label="obumnwabude.com">
-    Obum<span class="dot">.</span>
-  </a>
-  <span class="section">Links</span>
+<header class="topbar" [class.scrolled]="scrolled()">
+  <div class="topbar-inner">
+    <a class="brand" href="https://obumnwabude.com" target="_blank" rel="noopener" aria-label="Obum, opens obumnwabude.com">
+      <span class="brand-name">Obum</span><span class="brand-dot" aria-hidden="true"></span>
+    </a>
+    <span class="section">Links</span>
 
-  <span class="spacer"></span>
+    <span class="spacer"></span>
 
-  <button class="glass-pill palette-trigger" type="button" (click)="void openPalette()" aria-label="Open command palette">
-    <mat-icon>bolt</mat-icon>
-    <span class="label">Jump to</span>
-    <kbd>{{ isMac ? '⌘' : 'Ctrl' }} K</kbd>
-  </button>
-
-  <obum-theme-menu />
-
-  @if (!auth.ready()) {
-    <span class="account-placeholder"></span>
-  } @else if (auth.user(); as user) {
-    <button class="avatar" type="button" [matMenuTriggerFor]="accountMenu" [attr.aria-label]="'Account: ' + (user.email ?? 'signed in')">
-      @if (user.photoURL) {
-        <img [src]="user.photoURL" alt="" referrerpolicy="no-referrer" width="34" height="34" />
-      } @else {
-        <mat-icon>person</mat-icon>
-      }
+    <button class="search-trigger" type="button" (click)="openPalette()" aria-label="Search links and actions">
+      <mat-icon>search</mat-icon>
+      <span class="label">Search or jump to</span>
+      <kbd>{{ isMac ? '⌘' : 'Ctrl' }} K</kbd>
     </button>
-    <mat-menu #accountMenu="matMenu" xPosition="before" class="glass-menu">
-      <div class="account-info" mat-menu-item disabled>
-        <span>{{ user.displayName ?? 'Signed in' }}</span>
-        <small>{{ user.email }}{{ auth.isAdmin() ? ' · admin' : '' }}</small>
-      </div>
-      <button mat-menu-item type="button" (click)="auth.signOut()"><mat-icon>logout</mat-icon>Sign out</button>
-    </mat-menu>
-  } @else {
-    <button class="glass-pill sign-in" type="button" (click)="auth.signIn()" [disabled]="auth.busy()">
-      <img src="google.svg" alt="" width="18" height="18" />
-      <span>Sign in</span>
-    </button>
-  }
+
+    <obum-theme-menu />
+
+    @if (auth.user(); as user) {
+      <button class="avatar" type="button" [matMenuTriggerFor]="accountMenu" [attr.aria-label]="'Account: ' + (user.email ?? 'signed in')">
+        @if (user.photoURL) {
+          <img [src]="user.photoURL" alt="" referrerpolicy="no-referrer" width="36" height="36" />
+        } @else {
+          <mat-icon>person</mat-icon>
+        }
+      </button>
+      <mat-menu #accountMenu="matMenu" xPosition="before" class="glass-menu">
+        <div class="account-info">
+          <strong>{{ user.displayName ?? 'Signed in' }}</strong>
+          <span>{{ user.email }}</span>
+          @if (auth.isAdmin()) {
+            <span class="role">Admin</span>
+          }
+        </div>
+        <button mat-menu-item type="button" (click)="auth.signOut()"><mat-icon>logout</mat-icon>Sign out</button>
+      </mat-menu>
+    } @else if (onAuthPage()) {
+      <button class="sign-in" type="button" (click)="auth.signIn()" [disabled]="auth.busy()">
+        <img src="google.svg" alt="" width="18" height="18" />
+        <span>Sign in with Google</span>
+      </button>
+    }
+  </div>
+  <div class="progress" aria-hidden="true" [style.transform]="'scaleX(' + progress() + ')'"></div>
 </header>
 
-<mat-sidenav-container class="shell" [hasBackdrop]="true">
-  <mat-sidenav
-    class="side-panel glass"
-    position="end"
-    mode="over"
-    [opened]="panelOpen() && wide()"
-    (closedStart)="panel.close()"
-    [autoFocus]="'first-tabbable'"
-  >
-    @if (panelOpen() && wide()) {
-      <obum-link-panel />
-    }
-  </mat-sidenav>
+<main class="page">
+  <obum-links-view />
+</main>
 
-  <mat-sidenav-content>
-    <main class="page">
-      <obum-links-view />
-    </main>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+@if (panelOpen()) {
+  <div class="scrim" aria-hidden="true" (click)="panel.close()"></div>
+  <aside class="drawer" role="dialog" aria-modal="true" aria-label="Link details" cdkTrapFocus cdkTrapFocusAutoCapture>
+    <obum-link-panel />
+  </aside>
+}

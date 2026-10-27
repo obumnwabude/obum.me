@@ -90,7 +90,7 @@
 
     @if (destination(); as dest) {
       <a class="destination" [href]="current.long" target="_blank" rel="noopener">
-        <img [src]="dest.favicon" alt="" width="20" height="20" />
+        <span class="favicon-tile large"><img [src]="dest.favicon" alt="" width="20" height="20" (error)="$any($event.target).parentElement.classList.add('missing')" /></span>
         <span>
           <span class="label">{{ dest.label }}</span>
           <span class="url">{{ current.long }}</span>
@@ -100,14 +100,16 @@
     }
 
     <dl class="facts">
-      <div>
-        <dt>Clicks</dt>
-        <dd>{{ compact(current.clicks) }}</dd>
-      </div>
-      <div>
-        <dt>Last clicked</dt>
-        <dd>{{ timeAgo(current.lastClickedAt) }}</dd>
-      </div>
+      @if (auth.isAdmin()) {
+        <div>
+          <dt>Clicks</dt>
+          <dd>{{ compact(current.clicks) }}</dd>
+        </div>
+        <div>
+          <dt>Last clicked</dt>
+          <dd>{{ timeAgo(current.lastClickedAt) }}</dd>
+        </div>
+      }
       <div>
         <dt>Created</dt>
         <dd>{{ current.createdAt | date: 'd MMM y' }}</dd>

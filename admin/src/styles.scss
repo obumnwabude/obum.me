@@ -3,7 +3,8 @@
 /*
  * Design tokens mirror obumnwabude.com: royal blue on cool white in light mode,
  * sky blue on near-black in dark mode, Inter, frosted glass surfaces.
- * Every token uses light-dark(), so switching theme only flips `color-scheme` on <html>.
+ * Colours use light-dark(), so switching theme only flips `color-scheme` on <html>.
+ * (light-dark() only accepts colours, so shadows are built from colour tokens.)
  */
 :root {
   --app-bg: light-dark(#f8fafd, #07090e);
@@ -14,25 +15,35 @@
   --accent-cyan: light-dark(#0284c7, #38bdf8);
   --danger: light-dark(#c62828, #f87171);
 
-  --glass-tint: light-dark(rgb(255 255 255 / 72%), rgb(13 20 36 / 58%));
-  --glass-strong: light-dark(rgb(255 255 255 / 90%), rgb(11 15 25 / 92%));
-  --glass-border: light-dark(rgb(16 30 159 / 10%), rgb(255 255 255 / 9%));
-  --glass-border-hover: light-dark(rgb(16 30 159 / 28%), rgb(96 165 250 / 26%));
-  --glass-sheen: linear-gradient(180deg, light-dark(rgb(255 255 255 / 70%), rgb(255 255 255 / 6%)) 0%, transparent 100%);
-  --shadow-glass: light-dark(
-    0 6px 17px -4px rgb(16 30 159 / 5%),
-    0 7px 20px -4px rgb(0 0 0 / 30%)
-  );
-  --shadow-glass-hover: light-dark(
-    0 10px 22px -4px rgb(16 30 159 / 8%),
-    0 11px 26px -4px rgb(0 0 0 / 40%)
-  );
+  --glass-tint: light-dark(rgb(255 255 255 / 70%), rgb(13 20 36 / 58%));
+  --glass-strong: light-dark(rgb(255 255 255 / 92%), rgb(12 17 29 / 94%));
+  --glass-border: light-dark(rgb(16 30 159 / 9%), rgb(255 255 255 / 8%));
+  --glass-border-hover: light-dark(rgb(16 30 159 / 26%), rgb(96 165 250 / 26%));
+  --glass-sheen: linear-gradient(180deg, light-dark(rgb(255 255 255 / 70%), rgb(255 255 255 / 5%)) 0%, transparent 100%);
+  --hover: light-dark(rgb(16 30 159 / 5%), rgb(96 165 250 / 7%));
+
+  --shadow-soft: light-dark(rgb(16 30 159 / 6%), rgb(0 0 0 / 32%));
+  --shadow-deep: light-dark(rgb(11 19 41 / 14%), rgb(0 0 0 / 55%));
+  --shadow-glass: 0 8px 24px -8px var(--shadow-soft), 0 1px 3px -1px var(--shadow-soft);
+  --shadow-header: 0 6px 24px -10px var(--shadow-soft);
+  --shadow-overlay: 0 32px 64px -24px var(--shadow-deep), 0 8px 20px -8px var(--shadow-soft);
+
+  --page-width: 1440px;
+  --header-width: 1440px;
+  --header-height: 72px;
+  --gutter: 32px;
 
   color-scheme: light;
 }
 
+@media (max-width: 720px) {
+  :root {
+    --gutter: 16px;
+    --header-height: 64px;
+  }
+}
+
 html {
-  height: 100%;
   @include mat.theme(
     (
       color: (
@@ -53,7 +64,7 @@ html {
       surface: var(--app-bg),
       on-surface: var(--text),
       on-surface-variant: var(--gray),
-      outline: light-dark(rgb(16 30 159 / 32%), rgb(255 255 255 / 24%)),
+      outline: light-dark(rgb(16 30 159 / 30%), rgb(255 255 255 / 22%)),
       outline-variant: var(--glass-border),
       surface-container: var(--glass-strong),
       surface-container-high: var(--glass-strong),
@@ -66,6 +77,12 @@ html {
       on-secondary-container: var(--text),
     )
   );
+  scroll-padding-top: calc(var(--header-height) + 80px);
+}
+
+/* Freeze the page behind the open side panel. */
+html.panel-open {
+  overflow: hidden;
 }
 
 *,
@@ -76,7 +93,8 @@ html {
 
 body {
   margin: 0;
-  min-height: 100%;
+  min-height: 100dvh;
+  overflow-x: clip;
   background: var(--app-bg);
   color: var(--text);
   font: var(--mat-sys-body-large);
@@ -86,37 +104,31 @@ body {
 }
 
 .material-symbols-rounded {
-  font-variation-settings: 'opsz' 24, 'wght' 450, 'FILL' 0, 'GRAD' 0;
+  font-variation-settings: 'opsz' 24, 'wght' 400, 'FILL' 0, 'GRAD' 0;
 }
 
-/* Frosted glass, shared by the top bar, toolbar, list, side panel and overlays. */
+/* Frosted glass, shared by the toolbar, list and overlays. */
 .glass {
-  position: relative;
   border: 1px solid var(--glass-border);
-  border-radius: 22px;
+  border-radius: 24px;
   background: var(--glass-sheen), var(--glass-tint);
   backdrop-filter: blur(18px) saturate(150%);
   -webkit-backdrop-filter: blur(18px) saturate(150%);
   box-shadow: var(--shadow-glass);
 }
 
-.glass-pill,
 .glass-icon-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
   height: 40px;
-  padding: 0 14px;
-  border-radius: 13px;
+  padding: 0;
   border: 1px solid var(--glass-border);
+  border-radius: 12px;
   background: var(--glass-tint);
   color: inherit;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 500;
   cursor: pointer;
-  transition: border-color 140ms ease, color 140ms ease, box-shadow 140ms ease;
+  transition: border-color 160ms ease, color 160ms ease;
 
   mat-icon {
     font-size: 20px;
@@ -128,15 +140,6 @@ body {
     border-color: var(--glass-border-hover);
     color: var(--primary);
   }
-  &:disabled {
-    opacity: 0.6;
-    cursor: default;
-  }
-}
-
-.glass-icon-button {
-  width: 40px;
-  padding: 0;
 }
 
 kbd {
@@ -145,8 +148,9 @@ kbd {
   min-width: 22px;
   height: 22px;
   padding: 0 6px;
-  border-radius: 6px;
   border: 1px solid var(--glass-border);
+  border-radius: 6px;
+  background: rgb(from var(--text) r g b / 4%);
   color: var(--gray);
   font: 500 12px/1 Inter, system-ui, sans-serif;
 }
@@ -158,64 +162,177 @@ kbd {
 
 /* Material overlays in glass */
 .glass-menu.mat-mdc-menu-panel,
-.glass-dialog .mat-mdc-dialog-surface,
-.glass-sheet.mat-bottom-sheet-container {
+.glass-dialog .mat-mdc-dialog-surface {
   background: var(--glass-strong);
-  backdrop-filter: blur(20px) saturate(150%);
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
   border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-glass-hover);
+  box-shadow: var(--shadow-overlay);
 }
 
 .glass-menu.mat-mdc-menu-panel {
-  border-radius: 16px;
-  min-width: 220px;
+  min-width: 240px;
+  border-radius: 18px;
 
+  .mat-mdc-menu-content {
+    padding: 6px 0;
+  }
   .mat-mdc-menu-item {
-    border-radius: 10px;
-    margin: 0 6px;
     width: calc(100% - 12px);
     min-height: 44px;
+    margin: 0 6px;
+    border-radius: 12px;
   }
   .mat-mdc-menu-item .mat-mdc-menu-item-text {
     display: flex;
     align-items: center;
+    gap: 12px;
     width: 100%;
-  }
-  .check {
-    margin-left: auto;
-    margin-right: 0;
-    color: var(--primary);
   }
   .is-active {
     color: var(--primary);
+    font-weight: 600;
+  }
+  .is-active .mat-icon {
+    color: var(--primary);
+  }
+}
+
+.menu-heading {
+  margin: 4px 0 4px;
+  padding: 6px 18px 4px;
+  color: var(--gray);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Selection mark for single-choice menus (sort, theme): an empty ring, filled with a tick when chosen. */
+.choice-mark {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid light-dark(rgb(11 19 41 / 22%), rgb(255 255 255 / 22%));
+  border-radius: 50%;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease;
+
+  &.trailing {
+    margin-left: auto;
+  }
+  svg {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: var(--primary-fg);
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0;
+    transform: scale(0.6);
+    transition:
+      opacity 160ms ease,
+      transform 160ms ease;
+  }
+  &.on {
+    border-color: var(--primary);
+    background: var(--primary);
+
+    svg {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+.mat-mdc-menu-item:hover .choice-mark:not(.on) {
+  border-color: var(--primary);
+}
+
+.choice-label {
+  flex: 1;
+}
+
+/* Site icons sit on a small rounded tile, so dark logos and odd shapes look tidy in both themes. */
+.favicon-tile {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  overflow: hidden;
+  border-radius: 7px;
+  background: light-dark(#fff, rgb(255 255 255 / 94%));
+  box-shadow:
+    0 0 0 1px var(--glass-border),
+    0 1px 2px var(--shadow-soft);
+
+  img {
+    display: block;
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+  }
+  &.large {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+
+    img {
+      width: 20px;
+      height: 20px;
+    }
+  }
+  &.missing {
+    background: rgb(from var(--primary) r g b / 10%);
+
+    img {
+      display: none;
+    }
+    &::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
   }
 }
 
 .glass-dialog .mat-mdc-dialog-surface {
-  border-radius: 24px;
+  border-radius: 28px;
 }
 
-.palette-dialog .mat-mdc-dialog-surface {
-  padding: 0;
-  overflow: hidden;
+/* Command palette: same feel as the one on obumnwabude.com. */
+.palette-backdrop {
+  background: light-dark(rgb(11 19 41 / 28%), rgb(0 0 0 / 55%));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
-.glass-sheet.mat-bottom-sheet-container {
-  border-radius: 26px 26px 0 0;
-  padding: 0;
-  max-height: 88dvh;
-  padding-bottom: env(safe-area-inset-bottom);
+.palette-panel {
+  width: 640px;
+
+  .mat-mdc-dialog-surface {
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    background: var(--glass-strong);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    box-shadow: var(--shadow-overlay);
+    animation: palette-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
 }
 
-.mat-drawer.side-panel {
-  background: var(--glass-sheen), var(--glass-strong);
-  border-color: var(--glass-border);
-}
-
-.mat-drawer-backdrop.mat-drawer-shown {
-  background: light-dark(rgb(11 19 41 / 18%), rgb(0 0 0 / 45%));
-  backdrop-filter: blur(2px);
+@keyframes palette-in {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.98);
+  }
 }
 
 .glass-snack .mat-mdc-snackbar-surface {
@@ -223,9 +340,9 @@ kbd {
 }
 
 .mat-mdc-button-base {
-  --mat-button-filled-container-shape: 13px;
-  --mat-button-outlined-container-shape: 13px;
-  --mat-button-text-container-shape: 13px;
+  --mat-button-filled-container-shape: 12px;
+  --mat-button-outlined-container-shape: 12px;
+  --mat-button-text-container-shape: 12px;
 }
 
 .mat-mdc-form-field {
@@ -246,4 +363,16 @@ kbd {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
   }
+}
+
+/* Lets the chip-row edge fades animate (custom properties are not animatable unless registered). */
+@property --fade-left {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+@property --fade-right {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
 }

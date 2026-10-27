@@ -19,14 +19,20 @@ import { THEME_ICONS, THEME_MODES, type ThemeMode, ThemeService } from '../core/
     >
       <mat-icon>{{ theme.isDark() ? 'dark_mode' : 'light_mode' }}</mat-icon>
     </button>
-    <mat-menu #menu="matMenu" xPosition="before" class="glass-menu">
+    <mat-menu #menu="matMenu" xPosition="before" class="glass-menu choice-menu">
+      <p class="menu-heading">Appearance</p>
       @for (mode of modes; track mode) {
-        <button mat-menu-item type="button" (click)="choose(mode, $event)" [class.is-active]="theme.mode() === mode">
+        <button
+          mat-menu-item
+          type="button"
+          role="menuitemradio"
+          [attr.aria-checked]="theme.mode() === mode"
+          [class.is-active]="theme.mode() === mode"
+          (click)="choose(mode, $event)"
+        >
           <mat-icon>{{ icons[mode] }}</mat-icon>
-          <span>{{ mode }}</span>
-          @if (theme.mode() === mode) {
-            <mat-icon class="check" aria-label="Selected">check</mat-icon>
-          }
+          <span class="choice-label">{{ mode }}</span>
+          <span class="choice-mark trailing" [class.on]="theme.mode() === mode" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M4 8.5l2.6 2.6L12 5.6" /></svg></span>
         </button>
       }
     </mat-menu>
