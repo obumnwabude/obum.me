@@ -5,7 +5,7 @@ import { getFirestore } from 'firebase/firestore';
 /** Public web config of the `obumshortener` Firebase project (safe to commit). */
 export const firebaseConfig = {
   apiKey: 'AIzaSyA6p9OtP4xjtAsI9KjAdT1A36eiT2Ca-ws',
-  authDomain: 'obumshortener.firebaseapp.com',
+  authDomain: 'admin.obum.me',
   projectId: 'obumshortener',
   storageBucket: 'obumshortener.appspot.com',
   messagingSenderId: '309484946343',
