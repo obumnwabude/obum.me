@@ -2,7 +2,7 @@ import { handleApi } from './api';
 import type { Env, LinkRef } from './env';
 import { logVisit } from './firestore';
 import { resolveLink } from './links';
-import { notFoundHtml, unavailableHtml } from './not-found';
+import { notFoundPage, unavailablePage } from './not-found';
 import { deviceOf, writeDataPoint, type Outcome } from './visit';
 
 function slugOf(pathname: string): string {
@@ -57,11 +57,11 @@ export default {
       link = await resolveLink(slug, env, ctx);
     } catch (error) {
       console.error(error);
-      return html(unavailableHtml, 503);
+      return html(unavailablePage(slug), 503);
     }
 
     record(link ? 'hit' : 'miss', link);
-    if (!link) return html(notFoundHtml, 404);
+    if (!link) return html(notFoundPage(slug), 404);
     return new Response(null, { status: 302, headers: { location: link.long, 'cache-control': 'no-store' } });
   },
 } satisfies ExportedHandler<Env>;

@@ -1,0 +1,49 @@
+name: Deploy obum.me Worker
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'worker/**'
+      - '.github/workflows/deploy-worker.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-worker
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: worker/pnpm-lock.yaml
+
+      - name: Install and type-check
+        working-directory: worker
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm typecheck
+
+      # In CI Wrangler replaces existing DNS records for obum.me / www.obum.me
+      # with the Worker's custom domains, so the first run is the switchover.
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: worker
+          packageManager: pnpm
+          secrets: |
+            FIREBASE_SERVICE_ACCOUNT
+            CF_API_TOKEN
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          CF_API_TOKEN: ${{ secrets.CF_ANALYTICS_TOKEN }}
